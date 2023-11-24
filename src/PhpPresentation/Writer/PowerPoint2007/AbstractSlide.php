@@ -624,7 +624,19 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
                         // - a:latin
                         // - a:ea
                         // - a:cs
-                        $objWriter->startElement('a:' . $element->getFont()->getFormat());
+                        $objWriter->startElement('a:latin');
+                        $objWriter->writeAttribute('typeface', $element->getFont()->getName());
+                        $objWriter->endElement();
+
+                        $objWriter->startElement('a:ea');
+                        $objWriter->writeAttribute('typeface', $element->getFont()->getName());
+                        $objWriter->endElement();
+
+                        $objWriter->startElement('a:cs');
+                        $objWriter->writeAttribute('typeface', $element->getFont()->getName());
+                        $objWriter->endElement();
+
+                        $objWriter->startElement('a:sym');
                         $objWriter->writeAttribute('typeface', $element->getFont()->getName());
                         $objWriter->endElement();
 
@@ -788,19 +800,6 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         if ($shape->getHyperlink()->isInternal()) {
             $objWriter->writeAttribute('action', $shape->getHyperlink()->getUrl());
         }
-
-        if ($shape->getHyperlink()->isTextColorUsed()) {
-            $objWriter->startElement('a:extLst');
-            $objWriter->startElement('a:ext');
-            $objWriter->writeAttribute('uri', '{A12FA001-AC4F-418D-AE19-62706E023703}');
-            $objWriter->startElement('ahyp:hlinkClr');
-            $objWriter->writeAttribute('xmlns:ahyp', 'http://schemas.microsoft.com/office/drawing/2018/hyperlinkcolor');
-            $objWriter->writeAttribute('val', 'tx');
-            $objWriter->endElement();
-            $objWriter->endElement();
-            $objWriter->endElement();
-        }
-
         $objWriter->endElement();
     }
 

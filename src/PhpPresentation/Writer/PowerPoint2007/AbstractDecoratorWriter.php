@@ -265,7 +265,8 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
             return;
         }
         // Width : pts
-        $width = CommonDrawing::pointsToEmu($oOutline->getWidth());
+        $width = $oOutline->getWidth() ?? 0;
+        $width = CommonDrawing::pointsToEmu($width);
 
         // a:ln
         $objWriter->startElement('a:ln');

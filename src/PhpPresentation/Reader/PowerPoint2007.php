@@ -35,7 +35,6 @@ use PhpOffice\PhpPresentation\PhpPresentation;
 use PhpOffice\PhpPresentation\PresentationProperties;
 use PhpOffice\PhpPresentation\Shape\Drawing\Base64;
 use PhpOffice\PhpPresentation\Shape\Drawing\Gd;
-use PhpOffice\PhpPresentation\Shape\Hyperlink;
 use PhpOffice\PhpPresentation\Shape\Placeholder;
 use PhpOffice\PhpPresentation\Shape\RichText;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
@@ -73,7 +72,7 @@ class PowerPoint2007 implements ReaderInterface
      */
     protected $oZip;
     /**
-     * @var array<string, array<string, array<string, string>>>
+     * @var array[]
      */
     protected $arrayRels = [];
     /**
@@ -557,7 +556,7 @@ class PowerPoint2007 implements ReaderInterface
                     $oElementLvlDefRPR = $xmlReader->getElement('a:defRPr', $oElementLvl);
                     if ($oElementLvlDefRPR instanceof DOMElement) {
                         if ($oElementLvlDefRPR->hasAttribute('sz')) {
-                            $oRTParagraph->getFont()->setSize((int) ($oElementLvlDefRPR->getAttribute('sz') / 100));
+                            $oRTParagraph->getFont()->setSize($oElementLvlDefRPR->getAttribute('sz') / 100);
                         }
                         if ($oElementLvlDefRPR->hasAttribute('b') && 1 == $oElementLvlDefRPR->getAttribute('b')) {
                             $oRTParagraph->getFont()->setBold(true);
@@ -778,9 +777,12 @@ class PowerPoint2007 implements ReaderInterface
             // Hyperlink
             $oElementHlinkClick = $document->getElement('a:hlinkClick', $oElement);
             if (is_object($oElementHlinkClick)) {
-                $oShape->setHyperlink(
-                    $this->loadHyperlink($document, $oElementHlinkClick, $oShape->getHyperlink())
-                );
+                if ($oElementHlinkClick->hasAttribute('tooltip')) {
+                    $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
+                }
+                if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
+                    $oShape->getHyperlink()->setUrl($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+                }
             }
         }
 
@@ -883,9 +885,9 @@ class PowerPoint2007 implements ReaderInterface
         $oSlide->addShape($oShape);
     }
 
-    protected function loadShapeRichText(XMLReader $document, DOMElement $node, AbstractSlide $oSlide): void
+    protected function loadShapeRichText(XMLReader $document, DOMElement $node, $oSlide): void
     {
-        if (!$document->elementExists('p:txBody/a:p/a:r', $node)) {
+        if (!$document->elementExists('p:txBody/a:p/a:r', $node) || !$oSlide instanceof AbstractSlide) {
             return;
         }
         // Core
@@ -1209,9 +1211,12 @@ class PowerPoint2007 implements ReaderInterface
                     // Hyperlink
                     $oElementHlinkClick = $document->getElement('a:hlinkClick', $oElementrPr);
                     if (is_object($oElementHlinkClick)) {
-                        $oText->setHyperlink(
-                            $this->loadHyperlink($document, $oElementHlinkClick, $oText->getHyperlink())
-                        );
+                        if ($oElementHlinkClick->hasAttribute('tooltip')) {
+                            $oText->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
+                        }
+                        if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
+                            $oText->getHyperlink()->setUrl($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+                        }
                     }
                     // Font
                     $oElementFontFormat = null;
@@ -1244,27 +1249,10 @@ class PowerPoint2007 implements ReaderInterface
         }
     }
 
-    protected function loadHyperlink(XMLReader $xmlReader, DOMElement $element, Hyperlink $hyperlink): Hyperlink
-    {
-        if ($element->hasAttribute('tooltip')) {
-            $hyperlink->setTooltip($element->getAttribute('tooltip'));
-        }
-        if ($element->hasAttribute('r:id') && isset($this->arrayRels[$this->fileRels][$element->getAttribute('r:id')]['Target'])) {
-            $hyperlink->setUrl($this->arrayRels[$this->fileRels][$element->getAttribute('r:id')]['Target']);
-        }
-        if ($subElementExt = $xmlReader->getElement('a:extLst/a:ext', $element)) {
-            if ($subElementExt->hasAttribute('uri') && $subElementExt->getAttribute('uri') == '{A12FA001-AC4F-418D-AE19-62706E023703}') {
-                $hyperlink->setIsTextColorUsed(true);
-            }
-        }
-
-        return $hyperlink;
-    }
-
     protected function loadStyleBorder(XMLReader $xmlReader, DOMElement $oElement, Border $oBorder): void
     {
         if ($oElement->hasAttribute('w')) {
-            $oBorder->setLineWidth((int) ($oElement->getAttribute('w') / 12700));
+            $oBorder->setLineWidth($oElement->getAttribute('w') / 12700);
         }
         if ($oElement->hasAttribute('cmpd')) {
             $oBorder->setLineStyle($oElement->getAttribute('cmpd'));
