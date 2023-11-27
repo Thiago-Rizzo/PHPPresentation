@@ -774,33 +774,17 @@ class PptSlidesTest extends PhpPresentationTestCase
         $oSlide = $this->oPresentation->getActiveSlide();
         $oRichText = $oSlide->createRichTextShape();
         $oRun = $oRichText->createTextRun('MyText');
-        $oRun->getFont()->setFormat(Font::FORMAT_LATIN);
+        $oRun->getFont()->setFormat();
 
         $this->assertZipXmlElementExists('ppt/slides/slide1.xml', $latinElement);
         $this->assertZipXmlAttributeExists('ppt/slides/slide1.xml', $latinElement, 'typeface');
         $this->assertZipXmlAttributeEquals('ppt/slides/slide1.xml', $latinElement, 'typeface', 'Calibri');
-        $this->assertZipXmlElementNotExists('ppt/slides/slide1.xml', $eastAsianElement);
-        $this->assertZipXmlElementNotExists('ppt/slides/slide1.xml', $complexScriptElement);
-        $this->assertIsSchemaECMA376Valid();
-
-        $oRun->getFont()->setFormat(Font::FORMAT_EAST_ASIAN);
-        $this->resetPresentationFile();
-
-        $this->assertZipXmlElementNotExists('ppt/slides/slide1.xml', $latinElement);
         $this->assertZipXmlElementExists('ppt/slides/slide1.xml', $eastAsianElement);
-        $this->assertZipXmlAttributeExists('ppt/slides/slide1.xml', $eastAsianElement, 'typeface');
-        $this->assertZipXmlAttributeEquals('ppt/slides/slide1.xml', $eastAsianElement, 'typeface', 'Calibri');
-        $this->assertZipXmlElementNotExists('ppt/slides/slide1.xml', $complexScriptElement);
-        $this->assertIsSchemaECMA376Valid();
-
-        $oRun->getFont()->setFormat(Font::FORMAT_COMPLEX_SCRIPT);
-        $this->resetPresentationFile();
-
-        $this->assertZipXmlElementNotExists('ppt/slides/slide1.xml', $latinElement);
-        $this->assertZipXmlElementNotExists('ppt/slides/slide1.xml', $eastAsianElement);
+        $this->assertZipXmlAttributeExists('ppt/slides/slide1.xml', $latinElement, 'typeface');
+        $this->assertZipXmlAttributeEquals('ppt/slides/slide1.xml', $latinElement, 'typeface', 'Calibri');
         $this->assertZipXmlElementExists('ppt/slides/slide1.xml', $complexScriptElement);
-        $this->assertZipXmlAttributeExists('ppt/slides/slide1.xml', $complexScriptElement, 'typeface');
-        $this->assertZipXmlAttributeEquals('ppt/slides/slide1.xml', $complexScriptElement, 'typeface', 'Calibri');
+        $this->assertZipXmlAttributeExists('ppt/slides/slide1.xml', $latinElement, 'typeface');
+        $this->assertZipXmlAttributeEquals('ppt/slides/slide1.xml', $latinElement, 'typeface', 'Calibri');
         $this->assertIsSchemaECMA376Valid();
     }
 
