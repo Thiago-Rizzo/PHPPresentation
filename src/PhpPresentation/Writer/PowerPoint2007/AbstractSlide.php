@@ -207,7 +207,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         if (!$shape->isPlaceholder()) {
             // p:sp\p:spPr\a:xfrm
             $objWriter->startElement('a:xfrm');
-            $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int) $shape->getRotation()));
+            $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
             // p:sp\p:spPr\a:xfrm\a:off
             $objWriter->startElement('a:off');
             $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
@@ -292,10 +292,10 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             $objWriter->startElement('a:fld');
             $objWriter->writeAttribute('id', $this->getGUID());
             $objWriter->writeAttribute('type', (
-                Placeholder::PH_TYPE_SLIDENUM == $shape->getPlaceholder()->getType() ? 'slidenum' : 'datetime'
+            Placeholder::PH_TYPE_SLIDENUM == $shape->getPlaceholder()->getType() ? 'slidenum' : 'datetime'
             ));
             $objWriter->writeElement('a:t', (
-                Placeholder::PH_TYPE_SLIDENUM == $shape->getPlaceholder()->getType() ? '<nr.>' : '03-04-05'
+            Placeholder::PH_TYPE_SLIDENUM == $shape->getPlaceholder()->getType() ? '<nr.>' : '03-04-05'
             ));
             $objWriter->endElement();
             $objWriter->endElement();
@@ -771,7 +771,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $objWriter->startElement('a:outerShdw');
         $objWriter->writeAttribute('blurRad', CommonDrawing::pixelsToEmu($oShadow->getBlurRadius()));
         $objWriter->writeAttribute('dist', CommonDrawing::pixelsToEmu($oShadow->getDistance()));
-        $objWriter->writeAttribute('dir', CommonDrawing::degreesToAngle((int) $oShadow->getDirection()));
+        $objWriter->writeAttribute('dir', CommonDrawing::degreesToAngle((int)$oShadow->getDirection()));
         $objWriter->writeAttribute('algn', $oShadow->getAlignment());
         $objWriter->writeAttribute('rotWithShape', '0');
 
@@ -1133,7 +1133,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         // p:sp\p:spPr\a:xfrm
         $objWriter->startElement('a:xfrm');
-        $objWriter->writeAttributeIf($shape->getRotation() != 0, 'rot', CommonDrawing::degreesToAngle((int) $shape->getRotation()));
+        $objWriter->writeAttributeIf($shape->getRotation() != 0, 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
         // p:sp\p:spPr\a:xfrm\a:off
         $objWriter->startElement('a:off');
         $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
@@ -1227,7 +1227,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $objWriter->endElement();
         // p:xfrm
         $objWriter->startElement('p:xfrm');
-        $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int) $shape->getRotation()));
+        $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
         // a:off
         $objWriter->startElement('a:off');
         $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
@@ -1327,7 +1327,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             $objWriter->writeAttribute('uri', '{DAA4B4D4-6D71-4841-9C94-3DE7FCFB9230}');
             // p:nvPr > p:extLst > p:ext > p14:media
             $objWriter->startElement('p14:media');
-            $objWriter->writeAttribute('r:embed', ((int) $shape->relationId + 1));
+            $objWriter->writeAttribute('r:embed', ((int)$shape->relationId + 1));
             $objWriter->writeAttribute('xmlns:p14', 'http://schemas.microsoft.com/office/powerpoint/2010/main');
             // p:nvPr > p:extLst > p:ext > ##p14:media
             $objWriter->endElement();
@@ -1392,7 +1392,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $objWriter->startElement('p:spPr');
         // a:xfrm
         $objWriter->startElement('a:xfrm');
-        $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int) $shape->getRotation()));
+        $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
 
         // a:off
         $objWriter->startElement('a:off');
@@ -1796,7 +1796,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             return com_create_guid();
         } else {
             mt_srand(intval(microtime(true) * 10000));
-            $charid = strtoupper(md5(uniqid((string) rand(), true)));
+            $charid = strtoupper(md5(uniqid((string)rand(), true)));
             $hyphen = chr(45); // "-"
             $uuid = chr(123)// "{"
                 . substr($charid, 0, 8) . $hyphen

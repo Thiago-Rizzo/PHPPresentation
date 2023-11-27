@@ -266,10 +266,10 @@ class PowerPoint2007 implements ReaderInterface
 
                     if ($attributeTypeInt) {
                         $propertyType = DocumentProperties::PROPERTY_TYPE_INTEGER;
-                        $propertyValue = (int) $attributeTypeInt->nodeValue;
+                        $propertyValue = (int)$attributeTypeInt->nodeValue;
                     } elseif ($attributeTypeFloat) {
                         $propertyType = DocumentProperties::PROPERTY_TYPE_FLOAT;
-                        $propertyValue = (float) $attributeTypeFloat->nodeValue;
+                        $propertyValue = (float)$attributeTypeFloat->nodeValue;
                     } elseif ($attributeTypeBoolean) {
                         $propertyType = DocumentProperties::PROPERTY_TYPE_BOOLEAN;
                         $propertyValue = $attributeTypeBoolean->nodeValue == 'true' ? true : false;
@@ -299,7 +299,7 @@ class PowerPoint2007 implements ReaderInterface
             if ($element instanceof DOMElement) {
                 if ($element->hasAttribute('loop')) {
                     $this->oPhpPresentation->getPresentationProperties()->setLoopContinuouslyUntilEsc(
-                        (bool) $element->getAttribute('loop')
+                        (bool)$element->getAttribute('loop')
                     );
                 }
                 if (null !== $xmlReader->getElement('p:present', $element)) {
@@ -539,18 +539,18 @@ class PowerPoint2007 implements ReaderInterface
                         $oRTParagraph->getAlignment()->setHorizontal($oElementLvl->getAttribute('algn'));
                     }
                     if ($oElementLvl->hasAttribute('marL')) {
-                        $val = (int) $oElementLvl->getAttribute('marL');
-                        $val = CommonDrawing::emuToPixels((int) $val);
+                        $val = (int)$oElementLvl->getAttribute('marL');
+                        $val = CommonDrawing::emuToPixels((int)$val);
                         $oRTParagraph->getAlignment()->setMarginLeft($val);
                     }
                     if ($oElementLvl->hasAttribute('marR')) {
-                        $val = (int) $oElementLvl->getAttribute('marR');
-                        $val = CommonDrawing::emuToPixels((int) $val);
+                        $val = (int)$oElementLvl->getAttribute('marR');
+                        $val = CommonDrawing::emuToPixels((int)$val);
                         $oRTParagraph->getAlignment()->setMarginRight($val);
                     }
                     if ($oElementLvl->hasAttribute('indent')) {
-                        $val = (int) $oElementLvl->getAttribute('indent');
-                        $val = CommonDrawing::emuToPixels((int) $val);
+                        $val = (int)$oElementLvl->getAttribute('indent');
+                        $val = CommonDrawing::emuToPixels((int)$val);
                         $oRTParagraph->getAlignment()->setIndent($val);
                     }
                     $oElementLvlDefRPR = $xmlReader->getElement('a:defRPr', $oElementLvl);
@@ -821,27 +821,27 @@ class PowerPoint2007 implements ReaderInterface
         $oElement = $document->getElement('p:spPr/a:xfrm', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('rot')) {
-                $oShape->setRotation((int) CommonDrawing::angleToDegrees((int) $oElement->getAttribute('rot')));
+                $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
             }
         }
 
         $oElement = $document->getElement('p:spPr/a:xfrm/a:off', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('x')) {
-                $oShape->setOffsetX(CommonDrawing::emuToPixels((int) $oElement->getAttribute('x')));
+                $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
             }
             if ($oElement->hasAttribute('y')) {
-                $oShape->setOffsetY(CommonDrawing::emuToPixels((int) $oElement->getAttribute('y')));
+                $oShape->setOffsetY(CommonDrawing::emuToPixels((int)$oElement->getAttribute('y')));
             }
         }
 
         $oElement = $document->getElement('p:spPr/a:xfrm/a:ext', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('cx')) {
-                $oShape->setWidth(CommonDrawing::emuToPixels((int) $oElement->getAttribute('cx')));
+                $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
             }
             if ($oElement->hasAttribute('cy')) {
-                $oShape->setHeight(CommonDrawing::emuToPixels((int) $oElement->getAttribute('cy')));
+                $oShape->setHeight(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cy')));
             }
         }
 
@@ -852,13 +852,13 @@ class PowerPoint2007 implements ReaderInterface
             $oSubElement = $document->getElement('a:outerShdw', $oElement);
             if ($oSubElement instanceof DOMElement) {
                 if ($oSubElement->hasAttribute('blurRad')) {
-                    $oShape->getShadow()->setBlurRadius(CommonDrawing::emuToPixels((int) $oSubElement->getAttribute('blurRad')));
+                    $oShape->getShadow()->setBlurRadius(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('blurRad')));
                 }
                 if ($oSubElement->hasAttribute('dist')) {
-                    $oShape->getShadow()->setDistance(CommonDrawing::emuToPixels((int) $oSubElement->getAttribute('dist')));
+                    $oShape->getShadow()->setDistance(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('dist')));
                 }
                 if ($oSubElement->hasAttribute('dir')) {
-                    $oShape->getShadow()->setDirection((int) CommonDrawing::angleToDegrees((int) $oSubElement->getAttribute('dir')));
+                    $oShape->getShadow()->setDirection((int)CommonDrawing::angleToDegrees((int)$oSubElement->getAttribute('dir')));
                 }
                 if ($oSubElement->hasAttribute('algn')) {
                     $oShape->getShadow()->setAlignment($oSubElement->getAttribute('algn'));
@@ -900,26 +900,26 @@ class PowerPoint2007 implements ReaderInterface
 
         $oElement = $document->getElement('p:spPr/a:xfrm', $node);
         if ($oElement instanceof DOMElement && $oElement->hasAttribute('rot')) {
-            $oShape->setRotation((int) CommonDrawing::angleToDegrees((int) $oElement->getAttribute('rot')));
+            $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
         }
 
         $oElement = $document->getElement('p:spPr/a:xfrm/a:off', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('x')) {
-                $oShape->setOffsetX(CommonDrawing::emuToPixels((int) $oElement->getAttribute('x')));
+                $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
             }
             if ($oElement->hasAttribute('y')) {
-                $oShape->setOffsetY(CommonDrawing::emuToPixels((int) $oElement->getAttribute('y')));
+                $oShape->setOffsetY(CommonDrawing::emuToPixels((int)$oElement->getAttribute('y')));
             }
         }
 
         $oElement = $document->getElement('p:spPr/a:xfrm/a:ext', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('cx')) {
-                $oShape->setWidth(CommonDrawing::emuToPixels((int) $oElement->getAttribute('cx')));
+                $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
             }
             if ($oElement->hasAttribute('cy')) {
-                $oShape->setHeight(CommonDrawing::emuToPixels((int) $oElement->getAttribute('cy')));
+                $oShape->setHeight(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cy')));
             }
         }
 
@@ -962,20 +962,20 @@ class PowerPoint2007 implements ReaderInterface
         $oElement = $document->getElement('p:xfrm/a:off', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('x')) {
-                $oShape->setOffsetX(CommonDrawing::emuToPixels((int) $oElement->getAttribute('x')));
+                $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
             }
             if ($oElement->hasAttribute('y')) {
-                $oShape->setOffsetY(CommonDrawing::emuToPixels((int) $oElement->getAttribute('y')));
+                $oShape->setOffsetY(CommonDrawing::emuToPixels((int)$oElement->getAttribute('y')));
             }
         }
 
         $oElement = $document->getElement('p:xfrm/a:ext', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('cx')) {
-                $oShape->setWidth(CommonDrawing::emuToPixels((int) $oElement->getAttribute('cx')));
+                $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
             }
             if ($oElement->hasAttribute('cy')) {
-                $oShape->setHeight(CommonDrawing::emuToPixels((int) $oElement->getAttribute('cy')));
+                $oShape->setHeight(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cy')));
             }
         }
 
@@ -984,7 +984,7 @@ class PowerPoint2007 implements ReaderInterface
         $oShape->createRow();
         foreach ($arrayElements as $key => $oElement) {
             if ($oElement instanceof DOMElement && $oElement->getAttribute('w')) {
-                $oShape->getRow(0)->getCell($key)->setWidth(CommonDrawing::emuToPixels((int) $oElement->getAttribute('w')));
+                $oShape->getRow(0)->getCell($key)->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('w')));
             }
         }
 
@@ -999,7 +999,7 @@ class PowerPoint2007 implements ReaderInterface
                 $oRow = $oShape->createRow();
             }
             if ($oElementRow->hasAttribute('h')) {
-                $oRow->setHeight(CommonDrawing::emuToPixels((int) $oElementRow->getAttribute('h')));
+                $oRow->setHeight(CommonDrawing::emuToPixels((int)$oElementRow->getAttribute('h')));
             }
             $arrayElementsCell = $document->getElements('a:tc', $oElementRow);
             foreach ($arrayElementsCell as $keyCell => $oElementCell) {
@@ -1009,10 +1009,10 @@ class PowerPoint2007 implements ReaderInterface
                 $oCell = $oRow->getCell($keyCell);
                 $oCell->setParagraphs([]);
                 if ($oElementCell->hasAttribute('gridSpan')) {
-                    $oCell->setColSpan((int) $oElementCell->getAttribute('gridSpan'));
+                    $oCell->setColSpan((int)$oElementCell->getAttribute('gridSpan'));
                 }
                 if ($oElementCell->hasAttribute('rowSpan')) {
-                    $oCell->setRowSpan((int) $oElementCell->getAttribute('rowSpan'));
+                    $oCell->setRowSpan((int)$oElementCell->getAttribute('rowSpan'));
                 }
 
                 foreach ($document->getElements('a:txBody/a:p', $oElementCell) as $oElementPara) {
@@ -1032,16 +1032,16 @@ class PowerPoint2007 implements ReaderInterface
                             $oCell->getParagraph(0)->getAlignment()->setVertical($oElementTcPr->getAttribute('anchor'));
                         }
                         if ($oElementTcPr->hasAttribute('marB')) {
-                            $oCell->getParagraph(0)->getAlignment()->setMarginBottom((int) $oElementTcPr->getAttribute('marB'));
+                            $oCell->getParagraph(0)->getAlignment()->setMarginBottom((int)$oElementTcPr->getAttribute('marB'));
                         }
                         if ($oElementTcPr->hasAttribute('marL')) {
-                            $oCell->getParagraph(0)->getAlignment()->setMarginLeft((int) $oElementTcPr->getAttribute('marL'));
+                            $oCell->getParagraph(0)->getAlignment()->setMarginLeft((int)$oElementTcPr->getAttribute('marL'));
                         }
                         if ($oElementTcPr->hasAttribute('marR')) {
-                            $oCell->getParagraph(0)->getAlignment()->setMarginRight((int) $oElementTcPr->getAttribute('marR'));
+                            $oCell->getParagraph(0)->getAlignment()->setMarginRight((int)$oElementTcPr->getAttribute('marR'));
                         }
                         if ($oElementTcPr->hasAttribute('marT')) {
-                            $oCell->getParagraph(0)->getAlignment()->setMarginTop((int) $oElementTcPr->getAttribute('marT'));
+                            $oCell->getParagraph(0)->getAlignment()->setMarginTop((int)$oElementTcPr->getAttribute('marT'));
                         }
                     }
 
@@ -1099,19 +1099,19 @@ class PowerPoint2007 implements ReaderInterface
                 $oParagraph->getAlignment()->setVertical($oSubElement->getAttribute('fontAlgn'));
             }
             if ($oSubElement->hasAttribute('marL')) {
-                $oParagraph->getAlignment()->setMarginLeft(CommonDrawing::emuToPixels((int) $oSubElement->getAttribute('marL')));
+                $oParagraph->getAlignment()->setMarginLeft(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('marL')));
             }
             if ($oSubElement->hasAttribute('marR')) {
-                $oParagraph->getAlignment()->setMarginRight(CommonDrawing::emuToPixels((int) $oSubElement->getAttribute('marR')));
+                $oParagraph->getAlignment()->setMarginRight(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('marR')));
             }
             if ($oSubElement->hasAttribute('indent')) {
-                $oParagraph->getAlignment()->setIndent(CommonDrawing::emuToPixels((int) $oSubElement->getAttribute('indent')));
+                $oParagraph->getAlignment()->setIndent(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('indent')));
             }
             if ($oSubElement->hasAttribute('lvl')) {
-                $oParagraph->getAlignment()->setLevel((int) $oSubElement->getAttribute('lvl'));
+                $oParagraph->getAlignment()->setLevel((int)$oSubElement->getAttribute('lvl'));
             }
             if ($oSubElement->hasAttribute('rtl')) {
-                $oParagraph->getAlignment()->setIsRTL((bool) $oSubElement->getAttribute('rtl'));
+                $oParagraph->getAlignment()->setIsRTL((bool)$oSubElement->getAttribute('rtl'));
             }
 
             $oElementLineSpacingPoints = $document->getElement('a:lnSpc/a:spcPts', $oSubElement);
@@ -1307,7 +1307,7 @@ class PowerPoint2007 implements ReaderInterface
 
             $oRotation = $xmlReader->getElement('a:lin', $oElementFill);
             if ($oRotation instanceof DOMElement && $oRotation->hasAttribute('ang')) {
-                $oFill->setRotation(CommonDrawing::angleToDegrees((int) $oRotation->getAttribute('ang')));
+                $oFill->setRotation(CommonDrawing::angleToDegrees((int)$oRotation->getAttribute('ang')));
             }
 
             return $oFill;

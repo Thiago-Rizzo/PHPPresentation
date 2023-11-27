@@ -42,7 +42,7 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
     {
         // Write relationship
         $objWriter->startElement('Relationship');
-        $objWriter->writeAttribute('Id', 'rId' . (string) $pId);
+        $objWriter->writeAttribute('Id', 'rId' . (string)$pId);
         $objWriter->writeAttribute('Type', $pType);
         $objWriter->writeAttribute('Target', $pTarget);
 
@@ -221,7 +221,7 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
 
         // a:lin
         $objWriter->startElement('a:lin');
-        $objWriter->writeAttribute('ang', CommonDrawing::degreesToAngle((int) $pFill->getRotation()));
+        $objWriter->writeAttribute('ang', CommonDrawing::degreesToAngle((int)$pFill->getRotation()));
         $objWriter->writeAttribute('scaled', '0');
         $objWriter->endElement();
 
@@ -289,7 +289,7 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
             '\\',
         ], DIRECTORY_SEPARATOR, $path);
         $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), function (string $var) {
-            return (bool) strlen($var);
+            return (bool)strlen($var);
         });
         $absolutes = [];
         foreach ($parts as $part) {
