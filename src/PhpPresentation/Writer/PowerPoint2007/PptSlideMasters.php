@@ -24,9 +24,9 @@ use PhpOffice\Common\Adapter\Zip\ZipInterface;
 use PhpOffice\Common\Drawing as CommonDrawing;
 use PhpOffice\Common\XMLWriter;
 use PhpOffice\PhpPresentation\Shape\RichText;
+use PhpOffice\PhpPresentation\Slide;
 use PhpOffice\PhpPresentation\Slide\Background\Image;
 use PhpOffice\PhpPresentation\Slide\SlideMaster;
-use PhpOffice\PhpPresentation\Style\SchemeColor;
 
 class PptSlideMasters extends AbstractSlide
 {
