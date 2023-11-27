@@ -1263,7 +1263,15 @@ class PowerPoint2007 implements ReaderInterface
                         $oText->getFont()->setStrikethrough('noStrike' == $oElementrPr->getAttribute('strike') ? false : true);
                     }
                     if ($oElementrPr->hasAttribute('sz')) {
-                        $oText->getFont()->setSize((int) ($oElementrPr->getAttribute('sz') / 100));
+                        $oText->getFont()->setSize((int)($oElementrPr->getAttribute('sz') / 100));
+                    } else {
+                        foreach ($this->oPhpPresentation->getAllMasterSlides() as $masterSlide) {
+                            foreach ($masterSlide->getTextStyles()->getBodyStyle() as $bodyStyle) {
+                                if ($bodyStyle->getFont()->getSize() > 0) {
+                                    $oText->getFont()->setSize($bodyStyle->getFont()->getSize());
+                                }
+                            }
+                        }
                     }
                     if ($oElementrPr->hasAttribute('u')) {
                         $oText->getFont()->setUnderline($oElementrPr->getAttribute('u'));
