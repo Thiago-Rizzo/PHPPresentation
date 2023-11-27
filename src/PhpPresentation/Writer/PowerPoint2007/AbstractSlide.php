@@ -224,7 +224,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             $objWriter->endElement();
             // p:sp\p:spPr\a:prstGeom
             $objWriter->startElement('a:prstGeom');
-            $objWriter->writeAttribute('prst', 'rect');
+            $objWriter->writeAttribute('prst', $shape->getGeom() ?? 'rect');
 
             // p:sp\p:spPr\a:prstGeom\a:avLst
             $objWriter->writeElement('a:avLst');

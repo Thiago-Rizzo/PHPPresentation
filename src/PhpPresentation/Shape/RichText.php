@@ -143,6 +143,8 @@ class RichText extends AbstractShape implements ComparableInterface
      */
     private $topInset = 4.8;
 
+    private ?string $geom;
+
     /**
      * Horizontal Auto Shrink.
      *
@@ -730,6 +732,27 @@ class RichText extends AbstractShape implements ComparableInterface
 
         return $this;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getGeom(): ?string
+    {
+        return $this->geom;
+    }
+
+    /**
+     * @param string|null $geom
+     * @return RichText
+     */
+    public function setGeom(?string $geom): self
+    {
+        $this->geom = $geom;
+
+        return $this;
+    }
+
+    /**
      * Get hash code.
      *
      * @return string Hash code

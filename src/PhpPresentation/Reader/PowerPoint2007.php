@@ -894,6 +894,13 @@ class PowerPoint2007 implements ReaderInterface
             $this->fileRels = $oSlide->getRelsIndex();
         }
 
+
+        $oElement = $xmlReader->getElement('p:spPr/a:prstGeom', $node);
+        if ($oElement instanceof DOMElement) {
+            $oGeom = $oElement->hasAttribute('prst') ? $oElement->getAttribute('prst') : 'rect';
+            $oShape->setGeom($oGeom);
+        }
+
         $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
         if ($oElement instanceof DOMElement && $oElement->hasAttribute('rot')) {
             $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
