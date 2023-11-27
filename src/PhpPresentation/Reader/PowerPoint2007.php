@@ -934,6 +934,11 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
+        $oElement = $xmlReader->getElement('p:style', $node);
+        if ($oElement instanceof DOMElement) {
+            $this->loadStyle($xmlReader, $oElement, $oShape);
+        }
+
         if (count($oShape->getParagraphs()) > 0) {
             $oShape->setActiveParagraph(0);
         }
@@ -1075,6 +1080,62 @@ class PowerPoint2007 implements ReaderInterface
                 }
             }
         }
+    }
+
+    /**
+     * @param Cell|RichText $oShape
+     */
+    protected function loadStyle(XMLReader $xmlReader, DOMElement $oElement, $oShape): void
+    {
+        // Core
+        $oStyle = new Style();
+
+        $oSubElement = $xmlReader->getElement('a:lnRef', $oElement);
+        if ($oSubElement instanceof DOMElement) {
+            $oStyle->setLnRef(new Color\LnRef());
+
+            $oStyle->getLnRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+
+            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            if ($oColor !== null) {
+                $oStyle->getLnRef()->setSchemeClr($oColor);
+            }
+        }
+
+        $oSubElement = $xmlReader->getElement('a:fillRef', $oElement);
+        if ($oSubElement instanceof DOMElement) {
+            $oStyle->setFillRef(new Color\FillRef());
+            $oStyle->getFillRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+
+            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            if ($oColor !== null) {
+                $oStyle->getFillRef()->setSchemeClr($oColor);
+            }
+        }
+
+        $oSubElement = $xmlReader->getElement('a:effectRef', $oElement);
+        if ($oSubElement instanceof DOMElement) {
+            $oStyle->setEffectRef(new Color\EffectRef());
+            $oStyle->getEffectRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+
+            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            if ($oColor !== null) {
+                $oStyle->getEffectRef()->setSchemeClr($oColor);
+            }
+        }
+
+        $oSubElement = $xmlReader->getElement('a:fontRef', $oElement);
+        if ($oSubElement instanceof DOMElement) {
+            $oStyle->setFontRef(new Color\FontRef());
+            $oStyle->getFontRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+
+            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            if ($oColor !== null) {
+                $oStyle->getFontRef()->setSchemeClr($oColor);
+            }
+        }
+
+        $oShape->setStyle($oStyle);
     }
 
     /**

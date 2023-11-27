@@ -171,6 +171,8 @@ class RichText extends AbstractShape implements ComparableInterface
      */
     private $lnSpcReduction;
 
+    protected ?Style $style;
+
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText instance.
      */
@@ -711,6 +713,23 @@ class RichText extends AbstractShape implements ComparableInterface
     }
 
     /**
+     * @return Style|null
+     */
+    public function getStyle(): ?Style
+    {
+        return $this->style;
+    }
+
+    /**
+     * @param Style|null $style
+     * @return RichText
+     */
+    public function setStyle(?Style $style): self
+    {
+        $this->style = $style;
+
+        return $this;
+    }
      * Get hash code.
      *
      * @return string Hash code

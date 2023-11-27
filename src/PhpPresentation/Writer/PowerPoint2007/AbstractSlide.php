@@ -42,6 +42,7 @@ use PhpOffice\PhpPresentation\Shape\RichText\BreakElement;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
 use PhpOffice\PhpPresentation\Shape\RichText\Run;
 use PhpOffice\PhpPresentation\Shape\RichText\TextElement;
+use PhpOffice\PhpPresentation\Shape\Style;
 use PhpOffice\PhpPresentation\Shape\Table as ShapeTable;
 use PhpOffice\PhpPresentation\Slide;
 use PhpOffice\PhpPresentation\Slide\AbstractSlide as AbstractSlideAlias;
@@ -50,6 +51,7 @@ use PhpOffice\PhpPresentation\Style\Alignment;
 use PhpOffice\PhpPresentation\Style\Border;
 use PhpOffice\PhpPresentation\Style\Bullet;
 use PhpOffice\PhpPresentation\Style\Color;
+use PhpOffice\PhpPresentation\Style\Color\Ref;
 use PhpOffice\PhpPresentation\Style\Shadow;
 
 abstract class AbstractSlide extends AbstractDecoratorWriter
@@ -235,6 +237,8 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         // > p:sp\p:spPr
         $objWriter->endElement();
+        // p:style
+        $this->writeStyle($objWriter, $shape->getStyle());
         // p:txBody
         $objWriter->startElement('p:txBody');
         // a:bodyPr
@@ -657,6 +661,48 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
             $objWriter->endElement();
         }
+    }
+
+    protected function buildRef(XMLWriter $objWriter, ?Ref $ref): void
+    {
+        if (null === $ref) {
+            return;
+        }
+
+        $objWriter->writeAttribute('idx', $ref->getIdx());
+        $this->writeColor($objWriter, $ref->getSchemeClr());
+    }
+
+    protected function writeStyle(XMLWriter $objWriter, ?Style $style): void
+    {
+        if (null === $style) {
+            return;
+        }
+
+        $objWriter->startElement('p:style');
+
+        if ($style->getLnRef() != null && $style->getLnRef()->getIdx() != null) {
+            $objWriter->startElement('a:lnRef');
+            $this->buildRef($objWriter, $style->getLnRef());
+            $objWriter->endElement();
+        }
+        if ($style->getFillRef() != null && $style->getFillRef()->getIdx() != null) {
+            $objWriter->startElement('a:fillRef');
+            $this->buildRef($objWriter, $style->getFillRef());
+            $objWriter->endElement();
+        }
+        if ($style->getEffectRef() != null && $style->getEffectRef()->getIdx() != null) {
+            $objWriter->startElement('a:effectRef');
+            $this->buildRef($objWriter, $style->getEffectRef());
+            $objWriter->endElement();
+        }
+        if ($style->getFontRef() != null && $style->getFontRef()->getIdx() != null) {
+            $objWriter->startElement('a:fontRef');
+            $this->buildRef($objWriter, $style->getFontRef());
+            $objWriter->endElement();
+        }
+
+        $objWriter->endElement();
     }
 
     /**
