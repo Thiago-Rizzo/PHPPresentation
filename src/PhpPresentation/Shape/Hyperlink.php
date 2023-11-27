@@ -61,6 +61,14 @@ class Hyperlink
     private $hashIndex;
 
     /**
+     * If true, uses the text color, instead of theme color
+     *
+     * @var bool
+     */
+    private $isTextColorUsed = false;
+
+
+    /**
      * Create a new \PhpOffice\PhpPresentation\Shape\Hyperlink.
      *
      * @param string $pUrl Url to link the shape to
@@ -192,6 +200,34 @@ class Hyperlink
     public function setHashIndex(int $value)
     {
         $this->hashIndex = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get whether or not to use text color for a hyperlink, instead of theme color.
+     *
+     * @see https://docs.microsoft.com/en-us/openspecs/office_standards/ms-odrawxml/014fbc20-3705-4812-b8cd-93f5af05b504
+     *
+     * @return bool whether or not to use text color for a hyperlink, instead of theme color
+     */
+    public function isTextColorUsed(): bool
+    {
+        return $this->isTextColorUsed;
+    }
+
+    /**
+     * Set whether or not to use text color for a hyperlink, instead of theme color.
+     *
+     * @see https://docs.microsoft.com/en-us/openspecs/office_standards/ms-odrawxml/014fbc20-3705-4812-b8cd-93f5af05b504
+     *
+     * @param bool $isTextColorUsed
+     *
+     * @return self
+     */
+    public function setIsTextColorUsed(bool $isTextColorUsed): self
+    {
+        $this->isTextColorUsed = $isTextColorUsed;
 
         return $this;
     }
