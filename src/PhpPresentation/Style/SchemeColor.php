@@ -27,6 +27,8 @@ class SchemeColor extends Color
      */
     protected $value;
 
+    protected ?string $shade = null;
+
     public function getValue(): string
     {
         return $this->value;
@@ -37,5 +39,17 @@ class SchemeColor extends Color
         $this->value = $value;
 
         return $this;
+    }
+
+    public function setShade(?string $shade): self
+    {
+        $this->shade = $shade;
+
+        return $this;
+    }
+
+    public function getShade(): ?string
+    {
+        return $this->shade;
     }
 }
