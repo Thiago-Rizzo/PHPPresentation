@@ -760,11 +760,11 @@ class PowerPoint2007 implements ReaderInterface
         }
     }
 
-    protected function loadShapeDrawing(XMLReader $document, DOMElement $node, AbstractSlide $oSlide): void
+    protected function loadShapeDrawing(XMLReader $xmlReader, DOMElement $node, AbstractSlide $oSlide): void
     {
         // Core
-        $document->registerNamespace('asvg', 'http://schemas.microsoft.com/office/drawing/2016/SVG/main');
-        if ($document->getElement('p:blipFill/a:blip/a:extLst/a:ext/asvg:svgBlip', $node)) {
+        $xmlReader->registerNamespace('asvg', 'http://schemas.microsoft.com/office/drawing/2016/SVG/main');
+        if ($xmlReader->getElement('p:blipFill/a:blip/a:extLst/a:ext/asvg:svgBlip', $node)) {
             $oShape = new Base64();
         } else {
             $oShape = new Gd();
@@ -773,13 +773,13 @@ class PowerPoint2007 implements ReaderInterface
         // Variables
         $fileRels = $oSlide->getRelsIndex();
 
-        $oElement = $document->getElement('p:nvPicPr/p:cNvPr', $node);
+        $oElement = $xmlReader->getElement('p:nvPicPr/p:cNvPr', $node);
         if ($oElement instanceof DOMElement) {
             $oShape->setName($oElement->hasAttribute('name') ? $oElement->getAttribute('name') : '');
             $oShape->setDescription($oElement->hasAttribute('descr') ? $oElement->getAttribute('descr') : '');
 
             // Hyperlink
-            $oElementHlinkClick = $document->getElement('a:hlinkClick', $oElement);
+            $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
             if (is_object($oElementHlinkClick)) {
                 if ($oElementHlinkClick->hasAttribute('tooltip')) {
                     $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
@@ -790,7 +790,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:blipFill/a:blip', $node);
+        $oElement = $xmlReader->getElement('p:blipFill/a:blip', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('r:embed') && isset($this->arrayRels[$fileRels][$oElement->getAttribute('r:embed')]['Target'])) {
                 $pathImage = 'ppt/slides/' . $this->arrayRels[$fileRels][$oElement->getAttribute('r:embed')]['Target'];
@@ -816,20 +816,20 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:spPr', $node);
+        $oElement = $xmlReader->getElement('p:spPr', $node);
         if ($oElement instanceof DOMElement) {
-            $oFill = $this->loadStyleFill($document, $oElement);
+            $oFill = $this->loadStyleFill($xmlReader, $oElement);
             $oShape->setFill($oFill);
         }
 
-        $oElement = $document->getElement('p:spPr/a:xfrm', $node);
+        $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('rot')) {
                 $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
             }
         }
 
-        $oElement = $document->getElement('p:spPr/a:xfrm/a:off', $node);
+        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:off', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('x')) {
                 $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
@@ -839,7 +839,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:spPr/a:xfrm/a:ext', $node);
+        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:ext', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('cx')) {
                 $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
@@ -849,11 +849,11 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:spPr/a:effectLst', $node);
+        $oElement = $xmlReader->getElement('p:spPr/a:effectLst', $node);
         if ($oElement instanceof DOMElement) {
             $oShape->getShadow()->setVisible(true);
 
-            $oSubElement = $document->getElement('a:outerShdw', $oElement);
+            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
             if ($oSubElement instanceof DOMElement) {
                 if ($oSubElement->hasAttribute('blurRad')) {
                     $oShape->getShadow()->setBlurRadius(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('blurRad')));
@@ -869,7 +869,7 @@ class PowerPoint2007 implements ReaderInterface
                 }
             }
 
-            $oSubElement = $document->getElement('a:outerShdw/a:srgbClr', $oElement);
+            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
             if ($oSubElement instanceof DOMElement) {
                 $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
                 if ($oColor !== null) {
@@ -881,9 +881,9 @@ class PowerPoint2007 implements ReaderInterface
         $oSlide->addShape($oShape);
     }
 
-    protected function loadShapeRichText(XMLReader $document, DOMElement $node, $oSlide): void
+    protected function loadShapeRichText(XMLReader $xmlReader, DOMElement $node, $oSlide): void
     {
-        if (!$document->elementExists('p:txBody/a:p/a:r', $node) || !$oSlide instanceof AbstractSlide) {
+        if (!$xmlReader->elementExists('p:txBody/a:p', $node) || !$oSlide instanceof AbstractSlide) {
             return;
         }
         // Core
@@ -894,12 +894,12 @@ class PowerPoint2007 implements ReaderInterface
             $this->fileRels = $oSlide->getRelsIndex();
         }
 
-        $oElement = $document->getElement('p:spPr/a:xfrm', $node);
+        $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
         if ($oElement instanceof DOMElement && $oElement->hasAttribute('rot')) {
             $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
         }
 
-        $oElement = $document->getElement('p:spPr/a:xfrm/a:off', $node);
+        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:off', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('x')) {
                 $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
@@ -909,7 +909,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:spPr/a:xfrm/a:ext', $node);
+        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:ext', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('cx')) {
                 $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
@@ -919,7 +919,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:nvSpPr/p:nvPr/p:ph', $node);
+        $oElement = $xmlReader->getElement('p:nvSpPr/p:nvPr/p:ph', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('type')) {
                 $placeholder = new Placeholder($oElement->getAttribute('type'));
@@ -927,10 +927,10 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $arrayElements = $document->getElements('p:txBody/a:p', $node);
+        $arrayElements = $xmlReader->getElements('p:txBody/a:p', $node);
         foreach ($arrayElements as $oElement) {
             if ($oElement instanceof DOMElement) {
-                $this->loadParagraph($document, $oElement, $oShape);
+                $this->loadParagraph($xmlReader, $oElement, $oShape);
             }
         }
 
@@ -939,13 +939,13 @@ class PowerPoint2007 implements ReaderInterface
         }
     }
 
-    protected function loadShapeTable(XMLReader $document, DOMElement $node, AbstractSlide $oSlide): void
+    protected function loadShapeTable(XMLReader $xmlReader, DOMElement $node, AbstractSlide $oSlide): void
     {
         $this->fileRels = $oSlide->getRelsIndex();
 
         $oShape = $oSlide->createTableShape();
 
-        $oElement = $document->getElement('p:cNvPr', $node);
+        $oElement = $xmlReader->getElement('p:cNvPr', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('name')) {
                 $oShape->setName($oElement->getAttribute('name'));
@@ -955,7 +955,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:xfrm/a:off', $node);
+        $oElement = $xmlReader->getElement('p:xfrm/a:off', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('x')) {
                 $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
@@ -965,7 +965,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $document->getElement('p:xfrm/a:ext', $node);
+        $oElement = $xmlReader->getElement('p:xfrm/a:ext', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('cx')) {
                 $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
@@ -975,7 +975,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $arrayElements = $document->getElements('a:graphic/a:graphicData/a:tbl/a:tblGrid/a:gridCol', $node);
+        $arrayElements = $xmlReader->getElements('a:graphic/a:graphicData/a:tbl/a:tblGrid/a:gridCol', $node);
         $oShape->setNumColumns($arrayElements->length);
         $oShape->createRow();
         foreach ($arrayElements as $key => $oElement) {
@@ -984,7 +984,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $arrayElements = $document->getElements('a:graphic/a:graphicData/a:tbl/a:tr', $node);
+        $arrayElements = $xmlReader->getElements('a:graphic/a:graphicData/a:tbl/a:tr', $node);
         foreach ($arrayElements as $keyRow => $oElementRow) {
             if (!($oElementRow instanceof DOMElement)) {
                 continue;
@@ -997,7 +997,7 @@ class PowerPoint2007 implements ReaderInterface
             if ($oElementRow->hasAttribute('h')) {
                 $oRow->setHeight(CommonDrawing::emuToPixels((int)$oElementRow->getAttribute('h')));
             }
-            $arrayElementsCell = $document->getElements('a:tc', $oElementRow);
+            $arrayElementsCell = $xmlReader->getElements('a:tc', $oElementRow);
             foreach ($arrayElementsCell as $keyCell => $oElementCell) {
                 if (!($oElementCell instanceof DOMElement)) {
                     continue;
@@ -1011,13 +1011,13 @@ class PowerPoint2007 implements ReaderInterface
                     $oCell->setRowSpan((int)$oElementCell->getAttribute('rowSpan'));
                 }
 
-                foreach ($document->getElements('a:txBody/a:p', $oElementCell) as $oElementPara) {
+                foreach ($xmlReader->getElements('a:txBody/a:p', $oElementCell) as $oElementPara) {
                     if ($oElementPara instanceof DOMElement) {
-                        $this->loadParagraph($document, $oElementPara, $oCell);
+                        $this->loadParagraph($xmlReader, $oElementPara, $oCell);
                     }
                 }
 
-                $oElementTcPr = $document->getElement('a:tcPr', $oElementCell);
+                $oElementTcPr = $xmlReader->getElement('a:tcPr', $oElementCell);
                 if ($oElementTcPr instanceof DOMElement) {
                     $numParagraphs = count($oCell->getParagraphs());
                     if ($numParagraphs > 0) {
@@ -1041,35 +1041,35 @@ class PowerPoint2007 implements ReaderInterface
                         }
                     }
 
-                    $oFill = $this->loadStyleFill($document, $oElementTcPr);
+                    $oFill = $this->loadStyleFill($xmlReader, $oElementTcPr);
                     if ($oFill instanceof Fill) {
                         $oCell->setFill($oFill);
                     }
 
                     $oBorders = new Borders();
-                    $oElementBorderL = $document->getElement('a:lnL', $oElementTcPr);
+                    $oElementBorderL = $xmlReader->getElement('a:lnL', $oElementTcPr);
                     if ($oElementBorderL instanceof DOMElement) {
-                        $this->loadStyleBorder($document, $oElementBorderL, $oBorders->getLeft());
+                        $this->loadStyleBorder($xmlReader, $oElementBorderL, $oBorders->getLeft());
                     }
-                    $oElementBorderR = $document->getElement('a:lnR', $oElementTcPr);
+                    $oElementBorderR = $xmlReader->getElement('a:lnR', $oElementTcPr);
                     if ($oElementBorderR instanceof DOMElement) {
-                        $this->loadStyleBorder($document, $oElementBorderR, $oBorders->getRight());
+                        $this->loadStyleBorder($xmlReader, $oElementBorderR, $oBorders->getRight());
                     }
-                    $oElementBorderT = $document->getElement('a:lnT', $oElementTcPr);
+                    $oElementBorderT = $xmlReader->getElement('a:lnT', $oElementTcPr);
                     if ($oElementBorderT instanceof DOMElement) {
-                        $this->loadStyleBorder($document, $oElementBorderT, $oBorders->getTop());
+                        $this->loadStyleBorder($xmlReader, $oElementBorderT, $oBorders->getTop());
                     }
-                    $oElementBorderB = $document->getElement('a:lnB', $oElementTcPr);
+                    $oElementBorderB = $xmlReader->getElement('a:lnB', $oElementTcPr);
                     if ($oElementBorderB instanceof DOMElement) {
-                        $this->loadStyleBorder($document, $oElementBorderB, $oBorders->getBottom());
+                        $this->loadStyleBorder($xmlReader, $oElementBorderB, $oBorders->getBottom());
                     }
-                    $oElementBorderDiagDown = $document->getElement('a:lnTlToBr', $oElementTcPr);
+                    $oElementBorderDiagDown = $xmlReader->getElement('a:lnTlToBr', $oElementTcPr);
                     if ($oElementBorderDiagDown instanceof DOMElement) {
-                        $this->loadStyleBorder($document, $oElementBorderDiagDown, $oBorders->getDiagonalDown());
+                        $this->loadStyleBorder($xmlReader, $oElementBorderDiagDown, $oBorders->getDiagonalDown());
                     }
-                    $oElementBorderDiagUp = $document->getElement('a:lnBlToTr', $oElementTcPr);
+                    $oElementBorderDiagUp = $xmlReader->getElement('a:lnBlToTr', $oElementTcPr);
                     if ($oElementBorderDiagUp instanceof DOMElement) {
-                        $this->loadStyleBorder($document, $oElementBorderDiagUp, $oBorders->getDiagonalUp());
+                        $this->loadStyleBorder($xmlReader, $oElementBorderDiagUp, $oBorders->getDiagonalUp());
                     }
                     $oCell->setBorders($oBorders);
                 }
@@ -1080,13 +1080,13 @@ class PowerPoint2007 implements ReaderInterface
     /**
      * @param Cell|RichText $oShape
      */
-    protected function loadParagraph(XMLReader $document, DOMElement $oElement, $oShape): void
+    protected function loadParagraph(XMLReader $xmlReader, DOMElement $oElement, $oShape): void
     {
         // Core
         $oParagraph = $oShape->createParagraph();
         $oParagraph->setRichTextElements([]);
 
-        $oSubElement = $document->getElement('a:pPr', $oElement);
+        $oSubElement = $xmlReader->getElement('a:pPr', $oElement);
         if ($oSubElement instanceof DOMElement) {
             if ($oSubElement->hasAttribute('algn')) {
                 $oParagraph->getAlignment()->setHorizontal($oSubElement->getAttribute('algn'));
@@ -1110,41 +1110,41 @@ class PowerPoint2007 implements ReaderInterface
                 $oParagraph->getAlignment()->setIsRTL((bool)$oSubElement->getAttribute('rtl'));
             }
 
-            $oElementLineSpacingPoints = $document->getElement('a:lnSpc/a:spcPts', $oSubElement);
+            $oElementLineSpacingPoints = $xmlReader->getElement('a:lnSpc/a:spcPts', $oSubElement);
             if ($oElementLineSpacingPoints instanceof DOMElement) {
                 $oParagraph->setLineSpacingMode(Paragraph::LINE_SPACING_MODE_POINT);
                 $oParagraph->setLineSpacing($oElementLineSpacingPoints->getAttribute('val') / 100);
             }
-            $oElementLineSpacingPercent = $document->getElement('a:lnSpc/a:spcPct', $oSubElement);
+            $oElementLineSpacingPercent = $xmlReader->getElement('a:lnSpc/a:spcPct', $oSubElement);
             if ($oElementLineSpacingPercent instanceof DOMElement) {
                 $oParagraph->setLineSpacingMode(Paragraph::LINE_SPACING_MODE_PERCENT);
                 $oParagraph->setLineSpacing($oElementLineSpacingPercent->getAttribute('val') / 1000);
             }
-            $oElementSpacingBefore = $document->getElement('a:spcBef/a:spcPts', $oSubElement);
+            $oElementSpacingBefore = $xmlReader->getElement('a:spcBef/a:spcPts', $oSubElement);
             if ($oElementSpacingBefore instanceof DOMElement) {
                 $oParagraph->setSpacingBefore($oElementSpacingBefore->getAttribute('val') / 100);
             }
-            $oElementSpacingAfter = $document->getElement('a:spcAft/a:spcPts', $oSubElement);
+            $oElementSpacingAfter = $xmlReader->getElement('a:spcAft/a:spcPts', $oSubElement);
             if ($oElementSpacingAfter instanceof DOMElement) {
                 $oParagraph->setSpacingAfter($oElementSpacingAfter->getAttribute('val') / 100);
             }
 
             $oParagraph->getBulletStyle()->setBulletType(Bullet::TYPE_NONE);
 
-            $oElementBuFont = $document->getElement('a:buFont', $oSubElement);
+            $oElementBuFont = $xmlReader->getElement('a:buFont', $oSubElement);
             if ($oElementBuFont instanceof DOMElement) {
                 if ($oElementBuFont->hasAttribute('typeface')) {
                     $oParagraph->getBulletStyle()->setBulletFont($oElementBuFont->getAttribute('typeface'));
                 }
             }
-            $oElementBuChar = $document->getElement('a:buChar', $oSubElement);
+            $oElementBuChar = $xmlReader->getElement('a:buChar', $oSubElement);
             if ($oElementBuChar instanceof DOMElement) {
                 $oParagraph->getBulletStyle()->setBulletType(Bullet::TYPE_BULLET);
                 if ($oElementBuChar->hasAttribute('char')) {
                     $oParagraph->getBulletStyle()->setBulletChar($oElementBuChar->getAttribute('char'));
                 }
             }
-            $oElementBuAutoNum = $document->getElement('a:buAutoNum', $oSubElement);
+            $oElementBuAutoNum = $xmlReader->getElement('a:buAutoNum', $oSubElement);
             if ($oElementBuAutoNum instanceof DOMElement) {
                 $oParagraph->getBulletStyle()->setBulletType(Bullet::TYPE_NUMERIC);
                 if ($oElementBuAutoNum->hasAttribute('type')) {
@@ -1154,7 +1154,7 @@ class PowerPoint2007 implements ReaderInterface
                     $oParagraph->getBulletStyle()->setBulletNumericStartAt($oElementBuAutoNum->getAttribute('startAt'));
                 }
             }
-            $oElementBuClr = $document->getElement('a:buClr', $oSubElement);
+            $oElementBuClr = $xmlReader->getElement('a:buClr', $oSubElement);
             if ($oElementBuClr instanceof DOMElement) {
                 $oColor = $this->loadStyleColor($xmlReader, $oElementBuClr);
                 if ($oColor !== null) {
@@ -1171,7 +1171,7 @@ class PowerPoint2007 implements ReaderInterface
                 $oParagraph->createBreak();
             }
             if ('a:r' == $oSubElement->tagName) {
-                $oElementrPr = $document->getElement('a:rPr', $oSubElement);
+                $oElementrPr = $xmlReader->getElement('a:rPr', $oSubElement);
                 if (is_object($oElementrPr)) {
                     $oText = $oParagraph->createTextRun();
 
@@ -1202,7 +1202,7 @@ class PowerPoint2007 implements ReaderInterface
                     }
 
                     // Hyperlink
-                    $oElementHlinkClick = $document->getElement('a:hlinkClick', $oElementrPr);
+                    $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElementrPr);
                     if (is_object($oElementHlinkClick)) {
                         if ($oElementHlinkClick->hasAttribute('tooltip')) {
                             $oText->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
@@ -1213,17 +1213,17 @@ class PowerPoint2007 implements ReaderInterface
                     }
                     // Font
                     $oElementFontFormat = null;
-                    $oElementFontFormatLatin = $document->getElement('a:latin', $oElementrPr);
+                    $oElementFontFormatLatin = $xmlReader->getElement('a:latin', $oElementrPr);
                     if (is_object($oElementFontFormatLatin)) {
                         $oText->getFont()->setFormat(Font::FORMAT_LATIN);
                         $oElementFontFormat = $oElementFontFormatLatin;
                     }
-                    $oElementFontFormatEastAsian = $document->getElement('a:ea', $oElementrPr);
+                    $oElementFontFormatEastAsian = $xmlReader->getElement('a:ea', $oElementrPr);
                     if (is_object($oElementFontFormatEastAsian)) {
                         $oText->getFont()->setFormat(Font::FORMAT_EAST_ASIAN);
                         $oElementFontFormat = $oElementFontFormatEastAsian;
                     }
-                    $oElementFontFormatComplexScript = $document->getElement('a:cs', $oElementrPr);
+                    $oElementFontFormatComplexScript = $xmlReader->getElement('a:cs', $oElementrPr);
                     if (is_object($oElementFontFormatComplexScript)) {
                         $oText->getFont()->setFormat(Font::FORMAT_COMPLEX_SCRIPT);
                         $oElementFontFormat = $oElementFontFormatComplexScript;
@@ -1235,7 +1235,7 @@ class PowerPoint2007 implements ReaderInterface
                     //} else {
                     // $oText = $oParagraph->createText();
 
-                    $oSubSubElement = $document->getElement('a:t', $oSubElement);
+                    $oSubSubElement = $xmlReader->getElement('a:t', $oSubElement);
                     $oText->setText($oSubSubElement->nodeValue);
                 }
             }
