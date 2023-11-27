@@ -25,6 +25,7 @@ use PhpOffice\PhpPresentation\ComparableInterface;
 use PhpOffice\PhpPresentation\Exception\OutOfBoundsException;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
 use PhpOffice\PhpPresentation\Shape\RichText\TextElementInterface;
+use PhpOffice\PhpPresentation\Style\Fill;
 
 /**
  * \PhpOffice\PhpPresentation\Shape\RichText.
@@ -174,6 +175,8 @@ class RichText extends AbstractShape implements ComparableInterface
     private $lnSpcReduction;
 
     protected ?Style $style;
+
+    protected ?Fill $lnFill;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText instance.
@@ -731,6 +734,18 @@ class RichText extends AbstractShape implements ComparableInterface
         $this->style = $style;
 
         return $this;
+    }
+
+    public function setLnFill(Fill $pValue = null): self
+    {
+        $this->lnFill = $pValue;
+
+        return $this;
+    }
+
+    public function getLnFill(): ?Fill
+    {
+        return $this->lnFill;
     }
 
     /**

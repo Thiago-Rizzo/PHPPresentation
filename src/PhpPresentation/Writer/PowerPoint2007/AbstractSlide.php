@@ -232,6 +232,13 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             $objWriter->endElement();
         }
         $this->writeFill($objWriter, $shape->getFill());
+
+        if ($shape->getLnFill() !== null) {
+            $objWriter->startElement('a:ln');
+            $this->writeFill($objWriter, $shape->getLnFill());
+            $objWriter->endElement();
+        }
+
         $this->writeBorder($objWriter, $shape->getBorder(), '');
         $this->writeShadow($objWriter, $shape->getShadow());
 

@@ -895,6 +895,14 @@ class PowerPoint2007 implements ReaderInterface
         }
 
 
+        $oElement = $xmlReader->getElement('p:spPr/a:ln', $node);
+        if ($oElement instanceof DOMElement) {
+            $oFill = $this->loadStyleFill($xmlReader, $oElement);
+            if ($oFill) {
+                $oShape->setLnFill($oFill);
+            }
+        }
+
         $oElement = $xmlReader->getElement('p:spPr/a:prstGeom', $node);
         if ($oElement instanceof DOMElement) {
             $oGeom = $oElement->hasAttribute('prst') ? $oElement->getAttribute('prst') : 'rect';
