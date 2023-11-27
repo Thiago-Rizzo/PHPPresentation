@@ -894,6 +894,11 @@ class PowerPoint2007 implements ReaderInterface
             $this->fileRels = $oSlide->getRelsIndex();
         }
 
+        $oElement = $xmlReader->getElement('p:spPr', $node);
+        if ($oElement instanceof DOMElement) {
+            $oFill = $this->loadStyleFill($xmlReader, $oElement);
+            $oShape->setFill($oFill);
+        }
 
         $oElement = $xmlReader->getElement('p:spPr/a:ln', $node);
         if ($oElement instanceof DOMElement) {
