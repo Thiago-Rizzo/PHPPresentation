@@ -221,11 +221,10 @@ class PptSlideMasters extends AbstractSlide
                 $objWriter->writeAttributeIf($oParagraph->getFont()->isBold(), 'b', 1);
                 $objWriter->writeAttributeIf($oParagraph->getFont()->isItalic(), 'i', 1);
                 $objWriter->writeAttribute('kern', '1200');
-                if ($oParagraph->getFont()->getColor() instanceof SchemeColor) {
+
+                if ($oParagraph->getFont()->getColor() !== null) {
                     $objWriter->startElement('a:solidFill');
-                    $objWriter->startElement('a:schemeClr');
-                    $objWriter->writeAttribute('val', $oParagraph->getFont()->getColor()->getValue());
-                    $objWriter->endElement();
+                    $this->writeColor($objWriter, $oParagraph->getFont()->getColor());
                     $objWriter->endElement();
                 }
                 $objWriter->endElement();

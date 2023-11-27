@@ -26,6 +26,7 @@ use PhpOffice\PhpPresentation\Style\Border;
 use PhpOffice\PhpPresentation\Style\Color;
 use PhpOffice\PhpPresentation\Style\Fill;
 use PhpOffice\PhpPresentation\Style\Outline;
+use PhpOffice\PhpPresentation\Style\SchemeColor;
 
 abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer\AbstractDecoratorWriter
 {
@@ -125,6 +126,22 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
 
     protected function writeColor(XMLWriter $objWriter, Color $color, ?int $alpha = null): void
     {
+        if ($color instanceof SchemeColor) {
+            // a:schemeClr
+            $objWriter->startElement('a:schemeClr');
+            $objWriter->writeAttribute('val', $color->getValue());
+
+            // a:shade
+            if ($color->getShade() !== null) {
+                $objWriter->startElement('a:shade');
+                $objWriter->writeAttribute('val', $color->getShade());
+                $objWriter->endElement();
+            }
+
+            $objWriter->endElement();
+            return;
+        }
+
         if (is_null($alpha)) {
             $alpha = $color->getAlpha();
         }
