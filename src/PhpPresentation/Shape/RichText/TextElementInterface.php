@@ -49,7 +49,7 @@ interface TextElementInterface
     public function getFont();
 
     /**
-     * @return string Language
+     * @return string|null Language
      */
     public function getLanguage();
 

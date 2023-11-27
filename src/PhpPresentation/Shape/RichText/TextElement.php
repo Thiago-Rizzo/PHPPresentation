@@ -119,9 +119,9 @@ class TextElement implements TextElementInterface
     /**
      * Get language.
      *
-     * @return string
+     * @return string|null
      */
-    public function getLanguage()
+    public function getLanguage(): ?string
     {
         return $this->language;
     }
@@ -129,13 +129,13 @@ class TextElement implements TextElementInterface
     /**
      * Set language.
      *
-     * @param string $language
+     * @param string $lang
      *
      * @return TextElement
      */
-    public function setLanguage($language)
+    public function setLanguage($lang): TextElement
     {
-        $this->language = $language;
+        $this->language = $lang;
 
         return $this;
     }
