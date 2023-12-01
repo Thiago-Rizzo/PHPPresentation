@@ -273,7 +273,7 @@ class PowerPoint2007 implements ReaderInterface
                         $propertyValue = (float)$attributeTypeFloat->nodeValue;
                     } elseif ($attributeTypeBoolean) {
                         $propertyType = DocumentProperties::PROPERTY_TYPE_BOOLEAN;
-                        $propertyValue = $attributeTypeBoolean->nodeValue == 'true' ? true : false;
+                        $propertyValue = $attributeTypeBoolean->nodeValue == 'true';
                     } elseif ($attributeTypeDate) {
                         $propertyType = DocumentProperties::PROPERTY_TYPE_DATE;
                         $propertyValue = strtotime($attributeTypeDate->nodeValue);
@@ -775,8 +775,8 @@ class PowerPoint2007 implements ReaderInterface
 
         $oElement = $xmlReader->getElement('p:nvPicPr/p:cNvPr', $node);
         if ($oElement instanceof DOMElement) {
-            $oShape->setName($oElement->hasAttribute('name') ? $oElement->getAttribute('name') : '');
-            $oShape->setDescription($oElement->hasAttribute('descr') ? $oElement->getAttribute('descr') : '');
+            $oShape->setName($oElement->getAttribute('name'));
+            $oShape->setDescription($oElement->getAttribute('descr'));
 
             // Hyperlink
             $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
@@ -902,16 +902,12 @@ class PowerPoint2007 implements ReaderInterface
 
         $oElement = $xmlReader->getElement('p:spPr/a:ln', $node);
         if ($oElement instanceof DOMElement) {
-            $oFill = $this->loadStyleFill($xmlReader, $oElement);
-            if ($oFill) {
-                $oShape->setLnFill($oFill);
-            }
+            $oShape->setLnFill($this->loadStyleFill($xmlReader, $oElement));
         }
 
         $oElement = $xmlReader->getElement('p:spPr/a:prstGeom', $node);
         if ($oElement instanceof DOMElement) {
-            $oGeom = $oElement->hasAttribute('prst') ? $oElement->getAttribute('prst') : 'rect';
-            $oShape->setGeom($oGeom);
+            $oShape->setGeom($oElement->getAttribute('prst') ?: 'rect');
         }
 
         $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
@@ -1114,7 +1110,7 @@ class PowerPoint2007 implements ReaderInterface
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setLnRef(new Color\LnRef());
 
-            $oStyle->getLnRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+            $oStyle->getLnRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {
@@ -1125,7 +1121,7 @@ class PowerPoint2007 implements ReaderInterface
         $oSubElement = $xmlReader->getElement('a:fillRef', $oElement);
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setFillRef(new Color\FillRef());
-            $oStyle->getFillRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+            $oStyle->getFillRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {
@@ -1136,7 +1132,7 @@ class PowerPoint2007 implements ReaderInterface
         $oSubElement = $xmlReader->getElement('a:effectRef', $oElement);
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setEffectRef(new Color\EffectRef());
-            $oStyle->getEffectRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+            $oStyle->getEffectRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {
@@ -1147,7 +1143,7 @@ class PowerPoint2007 implements ReaderInterface
         $oSubElement = $xmlReader->getElement('a:fontRef', $oElement);
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setFontRef(new Color\FontRef());
-            $oStyle->getFontRef()->setIdx($oSubElement->hasAttribute('idx') ? $oSubElement->getAttribute('idx') : null);
+            $oStyle->getFontRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {
@@ -1258,14 +1254,14 @@ class PowerPoint2007 implements ReaderInterface
 
                     if ($oElementrPr->hasAttribute('b')) {
                         $att = $oElementrPr->getAttribute('b');
-                        $oText->getFont()->setBold('true' == $att || '1' == $att ? true : false);
+                        $oText->getFont()->setBold('true' == $att || '1' == $att);
                     }
                     if ($oElementrPr->hasAttribute('i')) {
                         $att = $oElementrPr->getAttribute('i');
-                        $oText->getFont()->setItalic('true' == $att || '1' == $att ? true : false);
+                        $oText->getFont()->setItalic('true' == $att || '1' == $att);
                     }
                     if ($oElementrPr->hasAttribute('strike')) {
-                        $oText->getFont()->setStrikethrough('noStrike' == $oElementrPr->getAttribute('strike') ? false : true);
+                        $oText->getFont()->setStrikethrough(!('noStrike' == $oElementrPr->getAttribute('strike')));
                     }
                     if ($oElementrPr->hasAttribute('sz')) {
                         $oText->getFont()->setSize((int)($oElementrPr->getAttribute('sz') / 100));
