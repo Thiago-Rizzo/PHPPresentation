@@ -1112,9 +1112,7 @@ class PowerPoint2007 implements ReaderInterface
             $oStyle->getLnRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
-            if ($oColor !== null) {
-                $oStyle->getLnRef()->setSchemeClr($oColor);
-            }
+            $oStyle->getLnRef()->setSchemeClr($oColor);
         }
 
         $oSubElement = $xmlReader->getElement('a:fillRef', $oElement);
@@ -1123,9 +1121,7 @@ class PowerPoint2007 implements ReaderInterface
             $oStyle->getFillRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
-            if ($oColor !== null) {
-                $oStyle->getFillRef()->setSchemeClr($oColor);
-            }
+            $oStyle->getFillRef()->setSchemeClr($oColor);
         }
 
         $oSubElement = $xmlReader->getElement('a:effectRef', $oElement);
@@ -1134,9 +1130,7 @@ class PowerPoint2007 implements ReaderInterface
             $oStyle->getEffectRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
-            if ($oColor !== null) {
-                $oStyle->getEffectRef()->setSchemeClr($oColor);
-            }
+            $oStyle->getEffectRef()->setSchemeClr($oColor);
         }
 
         $oSubElement = $xmlReader->getElement('a:fontRef', $oElement);
@@ -1145,9 +1139,7 @@ class PowerPoint2007 implements ReaderInterface
             $oStyle->getFontRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
-            if ($oColor !== null) {
-                $oStyle->getFontRef()->setSchemeClr($oColor);
-            }
+            $oStyle->getFontRef()->setSchemeClr($oColor);
         }
 
         $oShape->setStyle($oStyle);
