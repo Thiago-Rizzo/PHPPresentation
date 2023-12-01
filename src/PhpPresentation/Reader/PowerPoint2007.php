@@ -421,7 +421,6 @@ class PowerPoint2007 implements ReaderInterface
                     $oColor = $this->loadStyleColor($xmlReader, $oElementColor);
                     if ($oColor !== null) {
                         // Background
-
                         if ($oColor instanceof SchemeColor) {
                             $oBackground = new Slide\Background\SchemeColor();
                             $oBackground->setSchemeColor($oColor);
@@ -1110,7 +1109,7 @@ class PowerPoint2007 implements ReaderInterface
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setLnRef(new Color\LnRef());
 
-            $oStyle->getLnRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
+            $oStyle->getLnRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {
@@ -1121,7 +1120,7 @@ class PowerPoint2007 implements ReaderInterface
         $oSubElement = $xmlReader->getElement('a:fillRef', $oElement);
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setFillRef(new Color\FillRef());
-            $oStyle->getFillRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
+            $oStyle->getFillRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {
@@ -1132,7 +1131,7 @@ class PowerPoint2007 implements ReaderInterface
         $oSubElement = $xmlReader->getElement('a:effectRef', $oElement);
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setEffectRef(new Color\EffectRef());
-            $oStyle->getEffectRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
+            $oStyle->getEffectRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {
@@ -1143,7 +1142,7 @@ class PowerPoint2007 implements ReaderInterface
         $oSubElement = $xmlReader->getElement('a:fontRef', $oElement);
         if ($oSubElement instanceof DOMElement) {
             $oStyle->setFontRef(new Color\FontRef());
-            $oStyle->getFontRef()->setIdx($oSubElement->getAttribute('idx') ?: null);
+            $oStyle->getFontRef()->setIdx($oSubElement->getAttribute('idx'));
 
             $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
             if ($oColor !== null) {

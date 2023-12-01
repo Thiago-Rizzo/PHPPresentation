@@ -6,21 +6,21 @@ use PhpOffice\PhpPresentation\Style\SchemeColor;
 
 abstract class Ref
 {
-    protected ?string $idx = null;
+    protected string $idx = '';
     protected ?SchemeColor $schemeClr = null;
 
-    public function __construct(?string $idx = null, ?SchemeColor $schemeClr = null)
+    public function __construct(string $idx = '', ?SchemeColor $schemeClr = null)
     {
         $this->idx = $idx;
         $this->schemeClr = $schemeClr;
     }
 
-    public function getIdx(): ?string
+    public function getIdx(): string
     {
         return $this->idx;
     }
 
-    public function setIdx(?string $idx): void
+    public function setIdx(string $idx = ''): void
     {
         $this->idx = $idx;
     }

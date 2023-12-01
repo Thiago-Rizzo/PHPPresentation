@@ -688,22 +688,22 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         $objWriter->startElement('p:style');
 
-        if ($style->getLnRef() != null && $style->getLnRef()->getIdx() != null) {
+        if ($style->getLnRef() != null && $style->getLnRef()->getIdx() != '') {
             $objWriter->startElement('a:lnRef');
             $this->buildRef($objWriter, $style->getLnRef());
             $objWriter->endElement();
         }
-        if ($style->getFillRef() != null && $style->getFillRef()->getIdx() != null) {
+        if ($style->getFillRef() != null && $style->getFillRef()->getIdx() != '') {
             $objWriter->startElement('a:fillRef');
             $this->buildRef($objWriter, $style->getFillRef());
             $objWriter->endElement();
         }
-        if ($style->getEffectRef() != null && $style->getEffectRef()->getIdx() != null) {
+        if ($style->getEffectRef() != null && $style->getEffectRef()->getIdx() != '') {
             $objWriter->startElement('a:effectRef');
             $this->buildRef($objWriter, $style->getEffectRef());
             $objWriter->endElement();
         }
-        if ($style->getFontRef() != null && $style->getFontRef()->getIdx() != null) {
+        if ($style->getFontRef() != null && $style->getFontRef()->getIdx() != '') {
             $objWriter->startElement('a:fontRef');
             $this->buildRef($objWriter, $style->getFontRef());
             $objWriter->endElement();
