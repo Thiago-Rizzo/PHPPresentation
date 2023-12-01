@@ -1369,7 +1369,7 @@ class PowerPoint2007 implements ReaderInterface
             $oElementAlpha = $xmlReader->getElement('a:alpha', $oElementColor);
             if ($oElementAlpha instanceof DOMElement && $oElementAlpha->hasAttribute('val')) {
                 $alpha = strtoupper(dechex((($oElementAlpha->getAttribute('val') / 1000) / 100) * 255));
-                $oColor->setRGB($oElementAlpha->getAttribute('val'), $alpha);
+                $oColor->setRGB($oElementColor->getAttribute('val'), $alpha);
             }
 
             return $oColor;
