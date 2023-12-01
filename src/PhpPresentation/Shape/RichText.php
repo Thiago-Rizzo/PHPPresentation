@@ -144,39 +144,39 @@ class RichText extends AbstractShape implements ComparableInterface
      */
     private $topInset = 4.8;
 
-    private ?string $geom;
+    private ?string $geom = null;
 
     /**
      * Horizontal Auto Shrink.
      *
      * @var bool|null
      */
-    private $autoShrinkHorizontal;
+    private $autoShrinkHorizontal = null;
 
     /**
      * Vertical Auto Shrink.
      *
      * @var bool|null
      */
-    private $autoShrinkVertical;
+    private $autoShrinkVertical = null;
 
     /**
      * The percentage of the original font size to which the text is scaled.
      *
      * @var float|null
      */
-    private $fontScale;
+    private $fontScale = null;
 
     /**
      * The percentage of the reduction of the line spacing.
      *
      * @var float|null
      */
-    private $lnSpcReduction;
+    private $lnSpcReduction = null;
 
-    protected ?Style $style;
+    protected ?Style $style = null;
 
-    protected ?Fill $lnFill;
+    protected ?Fill $lnFill = null;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText instance.
@@ -736,7 +736,7 @@ class RichText extends AbstractShape implements ComparableInterface
         return $this;
     }
 
-    public function setLnFill(Fill $pValue = null): self
+    public function setLnFill(?Fill $pValue = null): self
     {
         $this->lnFill = $pValue;
 

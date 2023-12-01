@@ -6,8 +6,8 @@ use PhpOffice\PhpPresentation\Style\SchemeColor;
 
 abstract class Ref
 {
-    protected ?string $idx;
-    protected ?SchemeColor $schemeClr;
+    protected ?string $idx = null;
+    protected ?SchemeColor $schemeClr = null;
 
     public function __construct(?string $idx = null, ?SchemeColor $schemeClr = null)
     {
