@@ -137,18 +137,15 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
                 $objWriter->writeAttribute('val', $color->getShade());
                 $objWriter->endElement();
             }
-
-            $objWriter->endElement();
-            return;
+        } else {
+            // a:srgbClr
+            $objWriter->startElement('a:srgbClr');
+            $objWriter->writeAttribute('val', $color->getRGB());
         }
 
         if (is_null($alpha)) {
             $alpha = $color->getAlpha();
         }
-
-        // a:srgbClr
-        $objWriter->startElement('a:srgbClr');
-        $objWriter->writeAttribute('val', $color->getRGB());
 
         // a:alpha
         $objWriter->startElement('a:alpha');
