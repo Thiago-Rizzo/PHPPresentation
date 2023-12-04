@@ -767,6 +767,7 @@ class PowerPoint2007 implements ReaderInterface
             $oShape = new Base64();
         } else {
             $oShape = new Gd();
+            $oShape->setResizeProportional(false);
         }
         $oShape->getShadow()->setVisible(false);
         // Variables
