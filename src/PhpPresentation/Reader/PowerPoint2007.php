@@ -1424,6 +1424,12 @@ class PowerPoint2007 implements ReaderInterface
             return $oFill;
         }
 
+        // No fill
+        $oElementFill = $xmlReader->getElement('a:noFill', $oElement);
+        if ($oElementFill instanceof DOMElement) {
+            return new Fill();
+        }
+
         return null;
     }
 
