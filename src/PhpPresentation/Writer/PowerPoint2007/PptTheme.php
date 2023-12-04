@@ -107,10 +107,12 @@ class PptTheme extends AbstractDecoratorWriter
                 $objWriter->startElement('a:sysClr');
                 $objWriter->writeAttribute('val', ('dk1' == $oSchemeColor->getValue() ? 'windowText' : 'window'));
                 $objWriter->writeAttribute('lastClr', $oSchemeColor->getRGB());
-                $objWriter->endElement();
             } else {
-                $this->writeColor($objWriter, $oSchemeColor);
+                $objWriter->startElement('a:srgbClr');
+                $objWriter->writeAttribute('val', $oSchemeColor->getRGB());
             }
+
+            $objWriter->endElement();
 
             // a:theme/a:themeElements/a:clrScheme/a:*/
             $objWriter->endElement();
