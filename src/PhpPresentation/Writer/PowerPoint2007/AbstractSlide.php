@@ -30,6 +30,7 @@ use PhpOffice\PhpPresentation\Shape\AbstractGraphic;
 use PhpOffice\PhpPresentation\Shape\AutoShape;
 use PhpOffice\PhpPresentation\Shape\Chart as ShapeChart;
 use PhpOffice\PhpPresentation\Shape\Comment;
+use PhpOffice\PhpPresentation\Shape\CxnSp\CxnSp;
 use PhpOffice\PhpPresentation\Shape\Drawing\AbstractDrawingAdapter;
 use PhpOffice\PhpPresentation\Shape\Drawing\File as ShapeDrawingFile;
 use PhpOffice\PhpPresentation\Shape\Drawing\Gd as ShapeDrawingGd;
@@ -138,6 +139,8 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             // Check type
             if ($shape instanceof RichText) {
                 $this->writeShapeText($objWriter, $shape, $shapeId);
+            } elseif ($shape instanceof CxnSp) {
+                $this->writeCxnSp($objWriter, $shape, $shapeId);
             } elseif ($shape instanceof ShapeTable) {
                 $this->writeShapeTable($objWriter, $shape, $shapeId);
             } elseif ($shape instanceof Line) {
@@ -802,6 +805,22 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $this->writeBorder($objWriter, $shape->getBorder(), '');
         $objWriter->endElement();
         $objWriter->endElement();
+    }
+
+    /**
+     * Write Line Shape.
+     *
+     * @param XMLWriter $objWriter XML Writer
+     */
+    protected function writeCxnSp(XMLWriter $objWriter, CxnSp $shape, $shapeId): void
+    {
+        if ($shape->nvCxnSpPr) {
+            if ($shape->nvCxnSpPr->cNvPr) {
+                $shape->nvCxnSpPr->cNvPr->id = (string)$shapeId;
+            }
+        }
+
+        $shape->write($objWriter);
     }
 
     /**
