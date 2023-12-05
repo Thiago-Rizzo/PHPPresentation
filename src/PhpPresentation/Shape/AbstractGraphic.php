@@ -22,6 +22,8 @@ namespace PhpOffice\PhpPresentation\Shape;
 
 use PhpOffice\PhpPresentation\AbstractShape;
 use PhpOffice\PhpPresentation\ComparableInterface;
+use PhpOffice\PhpPresentation\Shape\BlipFill\BlipFill;
+use PhpOffice\PhpPresentation\Shape\Geometry\Geometry;
 
 /**
  * Abstract drawing.
@@ -69,6 +71,10 @@ abstract class AbstractGraphic extends AbstractShape implements ComparableInterf
      * @var string
      */
     public $relationId = null;
+
+    public ?Geometry $geometry = null;
+
+    public ?BlipFill $blipFill = null;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Slide\AbstractDrawing.
@@ -164,7 +170,7 @@ abstract class AbstractGraphic extends AbstractShape implements ComparableInterf
         // Resize proportional?
         if ($this->resizeProportional && 0 != $pValue && 0 != $this->width) {
             $ratio = $this->height / $this->width;
-            $this->height = (int) round($ratio * $pValue);
+            $this->height = (int)round($ratio * $pValue);
         }
 
         // Set width
@@ -183,7 +189,7 @@ abstract class AbstractGraphic extends AbstractShape implements ComparableInterf
         // Resize proportional?
         if ($this->resizeProportional && 0 != $pValue && 0 != $this->height) {
             $ratio = $this->width / $this->height;
-            $this->width = (int) round($ratio * $pValue);
+            $this->width = (int)round($ratio * $pValue);
         }
 
         // Set height
@@ -195,9 +201,9 @@ abstract class AbstractGraphic extends AbstractShape implements ComparableInterf
     /**
      * Set width and height with proportional resize.
      *
+     * @return self
      * @author Vincent@luo MSN:kele_100@hotmail.com
      *
-     * @return self
      */
     public function setWidthAndHeight(int $width = 0, int $height = 0)
     {
@@ -205,10 +211,10 @@ abstract class AbstractGraphic extends AbstractShape implements ComparableInterf
         $yratio = $height / $this->height;
         if ($this->resizeProportional && !(0 == $width || 0 == $height)) {
             if (($xratio * $this->height) < $height) {
-                $this->height = (int) ceil($xratio * $this->height);
+                $this->height = (int)ceil($xratio * $this->height);
                 $this->width = $width;
             } else {
-                $this->width = (int) ceil($yratio * $this->width);
+                $this->width = (int)ceil($yratio * $this->width);
                 $this->height = $height;
             }
         }
@@ -236,6 +242,30 @@ abstract class AbstractGraphic extends AbstractShape implements ComparableInterf
         $this->resizeProportional = $pValue;
 
         return $this;
+    }
+
+    public function setGeometry(?Geometry $geometry = null): self
+    {
+        $this->geometry = $geometry;
+
+        return $this;
+    }
+
+    public function getGeometry(): ?Geometry
+    {
+        return $this->geometry;
+    }
+
+    public function setBlipFill(?BlipFill $blipFill = null): self
+    {
+        $this->blipFill = $blipFill;
+
+        return $this;
+    }
+
+    public function getBlipFill(): ?BlipFill
+    {
+        return $this->blipFill;
     }
 
     /**
