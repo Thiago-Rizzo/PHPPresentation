@@ -36,6 +36,7 @@ use PhpOffice\PhpPresentation\PresentationProperties;
 use PhpOffice\PhpPresentation\Shape\BlipFill\BlipFill;
 use PhpOffice\PhpPresentation\Shape\Drawing\Base64;
 use PhpOffice\PhpPresentation\Shape\Drawing\Gd;
+use PhpOffice\PhpPresentation\Shape\Geometry\Geometry;
 use PhpOffice\PhpPresentation\Shape\Placeholder;
 use PhpOffice\PhpPresentation\Shape\RichText;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
@@ -799,6 +800,11 @@ class PowerPoint2007 implements ReaderInterface
             $oShape->setFill($oFill);
         }
 
+        $oElement = $xmlReader->getElement('p:spPr', $node);
+        if ($oElement instanceof DOMElement) {
+            $this->loadCustomGeometry($xmlReader, $oElement, $oShape);
+        }
+
         $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('rot')) {
@@ -919,9 +925,10 @@ class PowerPoint2007 implements ReaderInterface
         }
 
         $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
-        if ($oElement instanceof DOMElement && $oElement->hasAttribute('rot')) {
-            $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
-        }
+        if ($oElement instanceof DOMElement) {
+            if ($oElement->hasAttribute('rot')) {
+                $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
+            }
 
             if ($oElement->hasAttribute('flipH')) {
                 $oShape->setFlipH($oElement->getAttribute('flipH'));
@@ -975,6 +982,11 @@ class PowerPoint2007 implements ReaderInterface
         if (count($oShape->getParagraphs()) > 0) {
             $oShape->setActiveParagraph(0);
         }
+    }
+
+    public function loadCustomGeometry(XMLReader $xmlReader, DOMElement $node, $oShape): void
+    {
+        $oShape->setGeometry(Geometry::load($xmlReader, $node));
     }
 
     protected function loadShapeTable(XMLReader $xmlReader, DOMElement $node, AbstractSlide $oSlide): void
