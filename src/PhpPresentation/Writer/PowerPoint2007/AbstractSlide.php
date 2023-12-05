@@ -213,6 +213,8 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             // p:sp\p:spPr\a:xfrm
             $objWriter->startElement('a:xfrm');
             $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
+            $objWriter->writeAttributeIf($shape->getFlipH() !== '', 'flipH', $shape->getFlipH());
+            $objWriter->writeAttributeIf($shape->getFlipV() !== '', 'flipV', $shape->getFlipV());
             // p:sp\p:spPr\a:xfrm\a:off
             $objWriter->startElement('a:off');
             $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
@@ -1206,6 +1208,8 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         // p:sp\p:spPr\a:xfrm
         $objWriter->startElement('a:xfrm');
         $objWriter->writeAttributeIf($shape->getRotation() != 0, 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
+        $objWriter->writeAttributeIf($shape->getFlipH() !== '', 'flipH', $shape->getFlipH());
+        $objWriter->writeAttributeIf($shape->getFlipV() !== '', 'flipV', $shape->getFlipV());
         // p:sp\p:spPr\a:xfrm\a:off
         $objWriter->startElement('a:off');
         $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
@@ -1300,6 +1304,8 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         // p:xfrm
         $objWriter->startElement('p:xfrm');
         $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
+        $objWriter->writeAttributeIf($shape->getFlipH() !== '', 'flipH', $shape->getFlipH());
+        $objWriter->writeAttributeIf($shape->getFlipV() !== '', 'flipV', $shape->getFlipV());
         // a:off
         $objWriter->startElement('a:off');
         $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
@@ -1419,7 +1425,8 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         // a:xfrm
         $objWriter->startElement('a:xfrm');
         $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
-
+        $objWriter->writeAttributeIf($shape->getFlipH() !== '', 'flipH', $shape->getFlipH());
+        $objWriter->writeAttributeIf($shape->getFlipV() !== '', 'flipV', $shape->getFlipV());
         // a:off
         $objWriter->startElement('a:off');
         $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));

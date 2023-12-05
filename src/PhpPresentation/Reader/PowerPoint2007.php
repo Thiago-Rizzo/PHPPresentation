@@ -923,6 +923,15 @@ class PowerPoint2007 implements ReaderInterface
             $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
         }
 
+            if ($oElement->hasAttribute('flipH')) {
+                $oShape->setFlipH($oElement->getAttribute('flipH'));
+            }
+
+            if ($oElement->hasAttribute('flipV')) {
+                $oShape->setFlipV($oElement->getAttribute('flipV'));
+            }
+        }
+
         $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:off', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('x')) {
