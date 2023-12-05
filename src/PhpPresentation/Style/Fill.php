@@ -162,9 +162,9 @@ class Fill implements ComparableInterface
      *
      * @return self
      */
-    public function setStartColor(Color $pValue): self
+    public function setStartColor(?Color $pValue = null): self
     {
-        $this->startColor = $pValue;
+        $this->startColor = $pValue ?? new Color(Color::COLOR_BLACK);
 
         return $this;
     }
@@ -188,9 +188,9 @@ class Fill implements ComparableInterface
      *
      * @return self
      */
-    public function setEndColor(Color $pValue): self
+    public function setEndColor(?Color $pValue = null): self
     {
-        $this->endColor = $pValue;
+        $this->endColor = $pValue ?? new Color(Color::COLOR_WHITE);
 
         return $this;
     }
