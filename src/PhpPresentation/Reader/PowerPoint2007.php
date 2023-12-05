@@ -55,6 +55,7 @@ use PhpOffice\PhpPresentation\Style\Fill;
 use PhpOffice\PhpPresentation\Style\Font;
 use PhpOffice\PhpPresentation\Style\SchemeColor;
 use PhpOffice\PhpPresentation\Style\TextStyle;
+use PhpOffice\PhpPresentation\Shape\CxnSp\CxnSp;
 use ZipArchive;
 
 /**
@@ -1490,6 +1491,20 @@ class PowerPoint2007 implements ReaderInterface
     }
 
     /**
+     * @param XMLReader $xmlReader
+     * @param DOMElement $oNode
+     * @param AbstractSlide $oSlide
+     * @return void
+     */
+    public function loadCxnSp(XMLReader $xmlReader, DOMElement $oNode, $oSlide): void
+    {
+        $oCxnSp = CxnSp::load($xmlReader, $oNode);
+        if ($oCxnSp) {
+            $oSlide->addShape($oCxnSp);
+        }
+    }
+
+    /**
      * @param AbstractSlide|Note $oSlide
      * @param DOMNodeList<DOMNode> $oElements
      *
@@ -1512,6 +1527,9 @@ class PowerPoint2007 implements ReaderInterface
                     break;
                 case 'p:sp':
                     $this->loadShapeRichText($xmlReader, $oNode, $oSlide);
+                    break;
+                case 'p:cxnSp':
+                    $this->loadCxnSp($xmlReader, $oNode, $oSlide);
                     break;
                 default:
                     //throw new FeatureNotImplementedException();
