@@ -110,6 +110,10 @@ abstract class AbstractShape implements ComparableInterface
      */
     private $hashIndex;
 
+    protected string $flipV = '';
+
+    protected string $flipH = '';
+
     /**
      * Create a new self.
      */
@@ -147,9 +151,9 @@ abstract class AbstractShape implements ComparableInterface
      * @param ShapeContainerInterface $pValue
      * @param bool $pOverrideOld If a Slide has already been assigned, overwrite it and remove image from old Slide?
      *
+     * @return $this
      * @throws ShapeContainerAlreadyAssignedException
      *
-     * @return $this
      */
     public function setContainer(ShapeContainerInterface $pValue = null, $pOverrideOld = false)
     {
@@ -429,5 +433,25 @@ abstract class AbstractShape implements ComparableInterface
         $this->placeholder = $placeholder;
 
         return $this;
+    }
+
+    public function getFlipH(): string
+    {
+        return $this->flipH;
+    }
+
+    public function setFlipH(string $flipH = ''): void
+    {
+        $this->flipH = $flipH;
+    }
+
+    public function getFlipV(): string
+    {
+        return $this->flipV;
+    }
+
+    public function setFlipV(string $flipV = ''): void
+    {
+        $this->flipV = $flipV;
     }
 }
