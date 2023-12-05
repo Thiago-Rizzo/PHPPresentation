@@ -20,6 +20,10 @@ declare(strict_types=1);
 
 namespace PhpOffice\PhpPresentation\Style;
 
+use DOMElement;
+use PhpOffice\Common\Drawing as CommonDrawing;
+use PhpOffice\Common\XMLReader;
+use PhpOffice\Common\XMLWriter;
 use PhpOffice\PhpPresentation\ComparableInterface;
 
 class Fill implements ComparableInterface
@@ -235,5 +239,118 @@ class Fill implements ComparableInterface
         $this->hashIndex = $value;
 
         return $this;
+    }
+
+    public static function load(XMLReader $xmlReader, DOMElement $node): ?self
+    {
+        $fill = new self();
+
+        $element = $xmlReader->getElement('a:solidFill', $node);
+        if ($element) {
+            $fill->setFillType(self::FILL_SOLID);
+        } else {
+            $element = $xmlReader->getElement('a:noFill', $node);
+            if ($element) {
+                $fill->setFillType(self::FILL_NONE);
+            } else {
+                $element = $xmlReader->getElement('a:gradFill', $node);
+                if ($element) {
+                    $fill->setFillType(self::FILL_GRADIENT_LINEAR);
+                } else {
+                    $element = $xmlReader->getElement('a:pattFill', $node);
+                    if ($element) {
+                        $fill->setFillType(self::FILL_PATTERN_DARKGRAY);
+                    }
+                }
+            }
+        }
+
+        if (!$element) {
+            return null;
+        }
+
+        if ($fill->getFillType() == self::FILL_SOLID) {
+
+            $fill->setStartColor(SchemeColor::load($xmlReader, $element));
+
+        } elseif ($fill->getFillType() == self::FILL_GRADIENT_LINEAR) {
+
+            $elementGradient = $xmlReader->getElements('a:gsLst/a:gs', $element);
+            if ($elementGradient->length == 2) {
+                $fill->setStartColor(SchemeColor::load($xmlReader, $elementGradient->item(0)));
+                $fill->setEndColor(SchemeColor::load($xmlReader, $elementGradient->item(1)));
+            }
+
+        } elseif ($fill->getFillType() == self::FILL_PATTERN_DARKDOWN) {
+
+            $elementPattern = $xmlReader->getElement('a:fgClr', $element);
+            if ($elementPattern) {
+                $fill->setStartColor(SchemeColor::load($xmlReader, $elementPattern));
+            }
+
+            $elementPattern = $xmlReader->getElement('a:bgClr', $element);
+            if ($elementPattern) {
+                $fill->setEndColor(SchemeColor::load($xmlReader, $elementPattern));
+            }
+        }
+
+        return $fill;
+    }
+
+    public function write(XMLWriter $writer): void
+    {
+        if ($this->getFillType() == Fill::FILL_NONE) {
+            $writer->startElement('a:noFill');
+            $writer->endElement();
+
+            return;
+        }
+
+        if ($this->getFillType() == Fill::FILL_SOLID) {
+            $writer->startElement('a:solidFill');
+            $this->getStartColor()->write($writer);
+            $writer->endElement();
+
+            return;
+        }
+
+        if ($this->getFillType() == Fill::FILL_GRADIENT_LINEAR || $this->getFillType() == Fill::FILL_GRADIENT_PATH) {
+            $writer->startElement('a:gradFill');
+
+            $writer->startElement('a:gsLst');
+
+            $writer->startElement('a:gs');
+            $writer->writeAttribute('pos', '0');
+            $this->getStartColor()->write($writer);
+            $writer->endElement();
+
+            $writer->startElement('a:gs');
+            $writer->writeAttribute('pos', '100000');
+            $this->getEndColor()->write($writer);
+            $writer->endElement();
+
+            $writer->endElement();
+
+            $writer->startElement('a:lin');
+            $writer->writeAttribute('ang', CommonDrawing::degreesToAngle((int)$this->getRotation()));
+            $writer->writeAttribute('scaled', '0');
+            $writer->endElement();
+
+            $writer->endElement();
+
+            return;
+        }
+
+        $writer->startElement('a:pattFill');
+
+        $writer->startElement('a:fgClr');
+        $this->getStartColor()->write($writer);
+        $writer->endElement();
+
+        $writer->startElement('a:bgClr');
+        $this->getEndColor()->write($writer);
+        $writer->endElement();
+
+        $writer->endElement();
     }
 }
