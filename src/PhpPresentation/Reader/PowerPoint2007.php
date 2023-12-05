@@ -33,6 +33,7 @@ use PhpOffice\PhpPresentation\Exception\FileNotFoundException;
 use PhpOffice\PhpPresentation\Exception\InvalidFileFormatException;
 use PhpOffice\PhpPresentation\PhpPresentation;
 use PhpOffice\PhpPresentation\PresentationProperties;
+use PhpOffice\PhpPresentation\Shape\BlipFill\BlipFill;
 use PhpOffice\PhpPresentation\Shape\Drawing\Base64;
 use PhpOffice\PhpPresentation\Shape\Drawing\Gd;
 use PhpOffice\PhpPresentation\Shape\Placeholder;
@@ -790,31 +791,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $xmlReader->getElement('p:blipFill/a:blip', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('r:embed') && isset($this->arrayRels[$fileRels][$oElement->getAttribute('r:embed')]['Target'])) {
-                $pathImage = 'ppt/slides/' . $this->arrayRels[$fileRels][$oElement->getAttribute('r:embed')]['Target'];
-                $pathImage = explode('/', $pathImage);
-                foreach ($pathImage as $key => $partPath) {
-                    if ('..' == $partPath) {
-                        unset($pathImage[$key - 1]);
-                        unset($pathImage[$key]);
-                    }
-                }
-                $pathImage = implode('/', $pathImage);
-                $imageFile = $this->oZip->getFromName($pathImage);
-                if (!empty($imageFile)) {
-                    if ($oShape instanceof Gd) {
-                        $info = getimagesizefromstring($imageFile);
-                        $oShape->setMimeType($info['mime']);
-                        $oShape->setRenderingFunction(str_replace('/', '', $info['mime']));
-                        $oShape->setImageResource(imagecreatefromstring($imageFile));
-                    } elseif ($oShape instanceof Base64) {
-                        $oShape->setData('data:image/svg+xml;base64,' . base64_encode($imageFile));
-                    }
-                }
-            }
-        }
+        $this->loadBlipFill($xmlReader, $node, $oShape, $fileRels);
 
         $oElement = $xmlReader->getElement('p:spPr', $node);
         if ($oElement instanceof DOMElement) {
@@ -879,6 +856,37 @@ class PowerPoint2007 implements ReaderInterface
         }
 
         $oSlide->addShape($oShape);
+    }
+
+    public function loadBlipFill(XMLReader $xmlReader, DOMElement $node, $oShape, $fileRels): void
+    {
+        $oElement = $xmlReader->getElement('p:blipFill/a:blip', $node);
+        if ($oElement instanceof DOMElement) {
+            if ($oElement->hasAttribute('r:embed') && isset($this->arrayRels[$fileRels][$oElement->getAttribute('r:embed')]['Target'])) {
+                $pathImage = 'ppt/slides/' . $this->arrayRels[$fileRels][$oElement->getAttribute('r:embed')]['Target'];
+                $pathImage = explode('/', $pathImage);
+                foreach ($pathImage as $key => $partPath) {
+                    if ('..' == $partPath) {
+                        unset($pathImage[$key - 1]);
+                        unset($pathImage[$key]);
+                    }
+                }
+                $pathImage = implode('/', $pathImage);
+                $imageFile = $this->oZip->getFromName($pathImage);
+                if (!empty($imageFile)) {
+                    if ($oShape instanceof Gd) {
+                        $info = getimagesizefromstring($imageFile);
+                        $oShape->setMimeType($info['mime']);
+                        $oShape->setRenderingFunction(str_replace('/', '', $info['mime']));
+                        $oShape->setImageResource(imagecreatefromstring($imageFile));
+                    } elseif ($oShape instanceof Base64) {
+                        $oShape->setData('data:image/svg+xml;base64,' . base64_encode($imageFile));
+                    }
+                }
+            }
+        }
+
+        $oShape->setBlipFill(BlipFill::load($xmlReader, $node));
     }
 
     protected function loadShapeRichText(XMLReader $xmlReader, DOMElement $node, $oSlide): void

@@ -113,6 +113,7 @@ class PptSlides extends AbstractSlide
                     // Write relationship for image drawing
                     $this->writeRelationship($objWriter, $relId, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image', '../media/' . $iterator->current()->getIndexedFilename());
                     $iterator->current()->relationId = 'rId' . $relId;
+                    $iterator->current()->getBlipFill()->getBlip()->setEmbed('rId' . $relId);
                     ++$relId;
                 } elseif ($iterator->current() instanceof ShapeChart) {
                     // Write relationship for chart drawing
@@ -135,6 +136,7 @@ class PptSlides extends AbstractSlide
                             // Write relationship for image drawing
                             $this->writeRelationship($objWriter, $relId, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image', '../media/' . $iterator2->current()->getIndexedFilename());
                             $iterator2->current()->relationId = 'rId' . $relId;
+                            $iterator2->current()->getBlipFill()->getBlip()->setEmbed('rId' . $relId);
 
                             ++$relId;
                         } elseif ($iterator2->current() instanceof ShapeChart) {

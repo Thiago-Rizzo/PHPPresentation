@@ -1412,53 +1412,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $objWriter->endElement();
         $objWriter->endElement();
 
-        // p:blipFill
-        $objWriter->startElement('p:blipFill');
-
-        // a:blip
-        $objWriter->startElement('a:blip');
-        $objWriter->writeAttribute('r:embed', $shape->relationId);
-
-        if ($shape instanceof AbstractDrawingAdapter && $shape->getExtension() == 'svg') {
-            // a:extLst
-            $objWriter->startElement('a:extLst');
-
-            // a:extLst > a:ext
-            $objWriter->startElement('a:ext');
-            $objWriter->writeAttribute('uri', '{28A0092B-C50C-407E-A947-70E740481C1C}');
-            // a:extLst > a:ext > a14:useLocalDpi
-            $objWriter->startElement('a14:useLocalDpi');
-            $objWriter->writeAttribute('xmlns:a14', 'http://schemas.microsoft.com/office/drawing/2010/main');
-            $objWriter->writeAttribute('val', '0');
-            // a:extLst > a:ext > ##a14:useLocalDpi
-            $objWriter->endElement();
-            // a:extLst > ##a:ext
-            $objWriter->endElement();
-
-            // a:extLst > a:ext
-            $objWriter->startElement('a:ext');
-            $objWriter->writeAttribute('uri', '{96DAC541-7B7A-43D3-8B79-37D633B846F1}');
-            // a:extLst > a:ext > asvg:svgBlip
-            $objWriter->startElement('asvg:svgBlip');
-            $objWriter->writeAttribute('xmlns:asvg', 'http://schemas.microsoft.com/office/drawing/2016/SVG/main');
-            $objWriter->writeAttribute('r:embed', $shape->relationId);
-            // a:extLst > a:ext > ##asvg:svgBlip
-            $objWriter->endElement();
-            // a:extLst > ##a:ext
-            $objWriter->endElement();
-
-            // ##a:extLst
-            $objWriter->endElement();
-        }
-
-        $objWriter->endElement();
-
-        // a:stretch
-        $objWriter->startElement('a:stretch');
-        $objWriter->writeElement('a:fillRect');
-        $objWriter->endElement();
-
-        $objWriter->endElement();
+        $shape->getBlipFill()->write($objWriter);
 
         // p:spPr
         $objWriter->startElement('p:spPr');
