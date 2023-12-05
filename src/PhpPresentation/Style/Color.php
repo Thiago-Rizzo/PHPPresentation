@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 namespace PhpOffice\PhpPresentation\Style;
 
+use DOMElement;
+use PhpOffice\Common\XMLReader;
+use PhpOffice\Common\XMLWriter;
 use PhpOffice\PhpPresentation\ComparableInterface;
 
 /**
@@ -102,7 +105,7 @@ class Color implements ComparableInterface
         $alpha = 100;
         if (strlen($this->argb) >= 6) {
             $dec = hexdec(substr($this->argb, 0, 2));
-            $alpha = (int) number_format(($dec / 255) * 100, 0);
+            $alpha = (int)number_format(($dec / 255) * 100, 0);
         }
 
         return $alpha;
@@ -124,7 +127,7 @@ class Color implements ComparableInterface
             $alpha = 100;
         }
         $alpha = round(($alpha / 100) * 255);
-        $alpha = dechex((int) $alpha);
+        $alpha = dechex((int)$alpha);
         $alpha = str_pad($alpha, 2, '0', STR_PAD_LEFT);
         $this->argb = $alpha . substr($this->argb, 2);
 
@@ -207,5 +210,38 @@ class Color implements ComparableInterface
         $this->hashIndex = $value;
 
         return $this;
+    }
+
+    public static function load(XMLReader $xmlReader, DOMElement $node): ?self
+    {
+        $element = $xmlReader->getElement('a:srgbClr', $node);
+        if (!$element) {
+            return null;
+        }
+
+        $color = new self();
+
+        $color->setRGB($element->getAttribute('val'));
+
+        $elementAlpha = $xmlReader->getElement('a:alpha', $element);
+        if ($elementAlpha instanceof DOMElement && $elementAlpha->hasAttribute('val')) {
+            $alpha = $elementAlpha->getAttribute('val') / 1000;
+            $color->setAlpha($alpha);
+        }
+
+        return $color;
+    }
+
+    public function write(XMLWriter $writer): void
+    {
+        $writer->startElement('a:srgbClr');
+
+        $writer->writeAttribute('val', $this->getRGB());
+
+        $writer->startElement('a:alpha');
+        $writer->writeAttribute('val', $this->getAlpha() * 1000);
+        $writer->endElement();
+
+        $writer->endElement();
     }
 }
