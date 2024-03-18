@@ -555,7 +555,7 @@ class PowerPoint2007 implements ReaderInterface
                     $oElementLvlDefRPR = $xmlReader->getElement('a:defRPr', $oElementLvl);
                     if ($oElementLvlDefRPR instanceof DOMElement) {
                         if ($oElementLvlDefRPR->hasAttribute('sz')) {
-                            $oRTParagraph->getFont()->setSize($oElementLvlDefRPR->getAttribute('sz') / 100);
+                            $oRTParagraph->getFont()->setSize((int)($oElementLvlDefRPR->getAttribute('sz') / 100));
                         }
                         if ($oElementLvlDefRPR->hasAttribute('b') && 1 == $oElementLvlDefRPR->getAttribute('b')) {
                             $oRTParagraph->getFont()->setBold(true);
@@ -1212,20 +1212,20 @@ class PowerPoint2007 implements ReaderInterface
             $oElementLineSpacingPoints = $xmlReader->getElement('a:lnSpc/a:spcPts', $oSubElement);
             if ($oElementLineSpacingPoints instanceof DOMElement) {
                 $oParagraph->setLineSpacingMode(Paragraph::LINE_SPACING_MODE_POINT);
-                $oParagraph->setLineSpacing($oElementLineSpacingPoints->getAttribute('val') / 100);
+                $oParagraph->setLineSpacing((int)($oElementLineSpacingPoints->getAttribute('val') / 100));
             }
             $oElementLineSpacingPercent = $xmlReader->getElement('a:lnSpc/a:spcPct', $oSubElement);
             if ($oElementLineSpacingPercent instanceof DOMElement) {
                 $oParagraph->setLineSpacingMode(Paragraph::LINE_SPACING_MODE_PERCENT);
-                $oParagraph->setLineSpacing($oElementLineSpacingPercent->getAttribute('val') / 1000);
+                $oParagraph->setLineSpacing((int)($oElementLineSpacingPercent->getAttribute('val') / 1000));
             }
             $oElementSpacingBefore = $xmlReader->getElement('a:spcBef/a:spcPts', $oSubElement);
             if ($oElementSpacingBefore instanceof DOMElement) {
-                $oParagraph->setSpacingBefore($oElementSpacingBefore->getAttribute('val') / 100);
+                $oParagraph->setSpacingBefore((int)($oElementSpacingBefore->getAttribute('val') / 100));
             }
             $oElementSpacingAfter = $xmlReader->getElement('a:spcAft/a:spcPts', $oSubElement);
             if ($oElementSpacingAfter instanceof DOMElement) {
-                $oParagraph->setSpacingAfter($oElementSpacingAfter->getAttribute('val') / 100);
+                $oParagraph->setSpacingAfter((int)($oElementSpacingAfter->getAttribute('val') / 100));
             }
 
             $oParagraph->getBulletStyle()->setBulletType(Bullet::TYPE_NONE);
@@ -1386,7 +1386,7 @@ class PowerPoint2007 implements ReaderInterface
 
             $oElementAlpha = $xmlReader->getElement('a:alpha', $oElementColor);
             if ($oElementAlpha instanceof DOMElement && $oElementAlpha->hasAttribute('val')) {
-                $alpha = strtoupper(dechex((($oElementAlpha->getAttribute('val') / 1000) / 100) * 255));
+                $alpha = strtoupper(dechex((int)((($oElementAlpha->getAttribute('val') / 1000) / 100) * 255)));
                 $oColor->setRGB($oElementColor->getAttribute('val'), $alpha);
             }
 
@@ -1406,7 +1406,7 @@ class PowerPoint2007 implements ReaderInterface
             $oElementAlpha = $xmlReader->getElement('a:alpha', $oElementColor);
             if ($oElementAlpha instanceof DOMElement && $oElementAlpha->hasAttribute('val')) {
                 $alpha = $oElementAlpha->getAttribute('val') / 1000;
-                $oColor->setAlpha($alpha);
+                $oColor->setAlpha((int)$alpha);
             }
 
             return $oColor;
