@@ -23,6 +23,7 @@ namespace PhpOffice\PhpPresentation\Shape;
 use PhpOffice\PhpPresentation\AbstractShape;
 use PhpOffice\PhpPresentation\ComparableInterface;
 use PhpOffice\PhpPresentation\Exception\OutOfBoundsException;
+use PhpOffice\PhpPresentation\Shape\Geometry\Geometry;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
 use PhpOffice\PhpPresentation\Shape\RichText\TextElementInterface;
 use PhpOffice\PhpPresentation\Style\Fill;
@@ -177,6 +178,8 @@ class RichText extends AbstractShape implements ComparableInterface
     protected ?Style $style = null;
 
     protected ?Fill $lnFill = null;
+
+    protected ?Geometry $geometry = null;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText instance.
@@ -765,6 +768,18 @@ class RichText extends AbstractShape implements ComparableInterface
         $this->geom = $geom;
 
         return $this;
+    }
+
+    public function setGeometry(?Geometry $geometry = null): self
+    {
+        $this->geometry = $geometry;
+
+        return $this;
+    }
+
+    public function getGeometry(): ?Geometry
+    {
+        return $this->geometry;
     }
 
     /**

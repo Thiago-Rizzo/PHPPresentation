@@ -913,6 +913,8 @@ class PowerPoint2007 implements ReaderInterface
         if ($oElement instanceof DOMElement) {
             $oFill = $this->loadStyleFill($xmlReader, $oElement);
             $oShape->setFill($oFill);
+
+            $this->loadCustomGeometry($xmlReader, $oElement, $oShape);
         }
 
         $oElement = $xmlReader->getElement('p:spPr/a:ln', $node);
@@ -1212,7 +1214,7 @@ class PowerPoint2007 implements ReaderInterface
             $oElementLineSpacingPoints = $xmlReader->getElement('a:lnSpc/a:spcPts', $oSubElement);
             if ($oElementLineSpacingPoints instanceof DOMElement) {
                 $oParagraph->setLineSpacingMode(Paragraph::LINE_SPACING_MODE_POINT);
-                $oParagraph->setLineSpacing((int)($oElementLineSpacingPoints->getAttribute('val') / 100));
+                $oParagraph->setLineSpacing($oElementLineSpacingPoints->getAttribute('val') / 100);
             }
             $oElementLineSpacingPercent = $xmlReader->getElement('a:lnSpc/a:spcPct', $oSubElement);
             if ($oElementLineSpacingPercent instanceof DOMElement) {
@@ -1386,7 +1388,7 @@ class PowerPoint2007 implements ReaderInterface
 
             $oElementAlpha = $xmlReader->getElement('a:alpha', $oElementColor);
             if ($oElementAlpha instanceof DOMElement && $oElementAlpha->hasAttribute('val')) {
-                $alpha = strtoupper(dechex((int)((($oElementAlpha->getAttribute('val') / 1000) / 100) * 255)));
+                $alpha = strtoupper(dechex((($oElementAlpha->getAttribute('val') / 1000) / 100) * 255));
                 $oColor->setRGB($oElementColor->getAttribute('val'), $alpha);
             }
 
@@ -1406,7 +1408,7 @@ class PowerPoint2007 implements ReaderInterface
             $oElementAlpha = $xmlReader->getElement('a:alpha', $oElementColor);
             if ($oElementAlpha instanceof DOMElement && $oElementAlpha->hasAttribute('val')) {
                 $alpha = $oElementAlpha->getAttribute('val') / 1000;
-                $oColor->setAlpha((int)$alpha);
+                $oColor->setAlpha($alpha);
             }
 
             return $oColor;
