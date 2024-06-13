@@ -904,6 +904,9 @@ class PowerPoint2007 implements ReaderInterface
         // Core
         $oShape = $oSlide->createRichTextShape();
         $oShape->setParagraphs([]);
+
+        $fileRels = $oSlide->getRelsIndex();
+        
         // Variables
         if ($oSlide instanceof AbstractSlide) {
             $this->fileRels = $oSlide->getRelsIndex();
@@ -962,11 +965,54 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
+        $oElement = $xmlReader->getElement('p:spPr/a:effectLst', $node);
+        if ($oElement instanceof DOMElement) {
+            $oShape->getShadow()->setVisible(true);
+
+            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
+            if ($oSubElement instanceof DOMElement) {
+                if ($oSubElement->hasAttribute('blurRad')) {
+                    $oShape->getShadow()->setBlurRadius(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('blurRad')));
+                }
+                if ($oSubElement->hasAttribute('dist')) {
+                    $oShape->getShadow()->setDistance(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('dist')));
+                }
+                if ($oSubElement->hasAttribute('dir')) {
+                    $oShape->getShadow()->setDirection((int)CommonDrawing::angleToDegrees((int)$oSubElement->getAttribute('dir')));
+                }
+                if ($oSubElement->hasAttribute('algn')) {
+                    $oShape->getShadow()->setAlignment($oSubElement->getAttribute('algn'));
+                }
+            }
+
+            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
+            if ($oSubElement instanceof DOMElement) {
+                $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+                if ($oColor !== null) {
+                    $oShape->getShadow()->setColor($oColor);
+                }
+            }
+        }
+
         $oElement = $xmlReader->getElement('p:nvSpPr/p:nvPr/p:ph', $node);
         if ($oElement instanceof DOMElement) {
             if ($oElement->hasAttribute('type')) {
                 $placeholder = new Placeholder($oElement->getAttribute('type'));
                 $oShape->setPlaceHolder($placeholder);
+            }
+        }
+
+        $oElement = $xmlReader->getElement('p:nvSpPr/p:cNvPr', $node);
+        if ($oElement instanceof DOMElement) {
+            // Hyperlink
+            $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
+            if (is_object($oElementHlinkClick)) {
+                if ($oElementHlinkClick->hasAttribute('tooltip')) {
+                    $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
+                }
+                if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
+                    $oShape->getHyperlink()->setUrl($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+                }
             }
         }
 
