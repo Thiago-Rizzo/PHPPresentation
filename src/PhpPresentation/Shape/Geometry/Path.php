@@ -15,8 +15,11 @@ class Path
     public string $extrusionOk = '';
     public ?MoveTo $moveTo = null;
 
-    /** @var array<int, LnTo> */
-    public array $lnTo = [];
+    /** @var LnTo[]|array $lnTos */
+    public array $lnTos = [];
+
+    /** @var CubicBezTo[]|array $cubicBezTos */
+    public array $cubicBezTos = [];
 
     public ?Close $close = null;
 
@@ -33,11 +36,16 @@ class Path
         $path->extrusionOk = $dom->getAttribute('extrusionOk');
 
         $path->moveTo = MoveTo::load($xmlReader, $dom);
+        $path->close = Close::load($xmlReader, $dom);
 
-        $arrayElements = $xmlReader->getElements('a:lnTo', $dom);
-        foreach ($arrayElements as $oElement) {
+        $sequence = 1;
+        foreach ($dom->childNodes as $oElement) {
             if ($oElement instanceof DOMElement) {
-                $path->lnTo[] = LnTo::loadByElement($xmlReader, $oElement);
+                if ($oElement->nodeName === 'a:lnTo') {
+                    $path->lnTos[] = LnTo::loadByElement($xmlReader, $oElement, $sequence++);
+                } elseif ($oElement->nodeName === 'a:cubicBezTo') {
+                    $path->cubicBezTos[] = CubicBezTo::loadByElement($xmlReader, $oElement, $sequence++);
+                }
             }
         }
 
@@ -53,8 +61,13 @@ class Path
 
         $this->moveTo && $this->moveTo->write($writer);
 
-        foreach ($this->lnTo as $lnTo) {
-            $lnTo->write($writer);
+        $sequential = array_merge($this->lnTos, $this->cubicBezTos);
+
+        if (!empty($sequential)) {
+            usort($sequential, fn(Sequential $a, Sequential $b) => $a->sequence <=> $b->sequence);
+            foreach ($sequential as $el) {
+                $el->write($writer);
+            }
         }
 
         $this->close && $this->close->write($writer);

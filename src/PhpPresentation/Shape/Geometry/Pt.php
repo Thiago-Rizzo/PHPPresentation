@@ -8,22 +8,27 @@ use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
 
-class Pt
+class Pt extends Sequential
 {
     public string $x = '';
     public string $y = '';
 
-    public static function load(XMLReader $xmlReader, DOMElement $node): ?self
+    public static function load(XMLReader $xmlReader, DOMElement $node, int $sequence = 0): ?self
     {
-
         $dom = $xmlReader->getElement('a:pt', $node);
         if (!$dom) {
             return null;
         }
 
+        return self::loadByElement($xmlReader, $dom, $sequence);
+    }
+
+    public static function loadByElement(XMLReader $xmlReader, DOMElement $node, int $sequence = 0): self
+    {
         $pt = new self();
-        $pt->x = $dom->getAttribute('x');
-        $pt->y = $dom->getAttribute('y');
+        $pt->x = $node->getAttribute('x');
+        $pt->y = $node->getAttribute('y');
+        $pt->sequence = $sequence;
 
         return $pt;
     }

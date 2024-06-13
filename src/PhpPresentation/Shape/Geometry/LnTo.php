@@ -8,27 +8,25 @@ use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
 
-class LnTo
+class LnTo extends Sequential
 {
     public ?Pt $pt = null;
 
-    public static function load(XMLReader $xmlReader, DOMElement $node): ?self
+    public static function load(XMLReader $xmlReader, DOMElement $node, int $sequence = 0): ?self
     {
         $dom = $xmlReader->getElement('a:lnTo', $node);
         if (!$dom) {
             return null;
         }
 
-        $lnTo = new self();
-        $lnTo->pt = Pt::load($xmlReader, $dom);
-
-        return $lnTo;
+        return self::loadByElement($xmlReader, $dom, $sequence);
     }
 
-    public static function loadByElement(XMLReader $xmlReader, DOMElement $node): self
+    public static function loadByElement(XMLReader $xmlReader, DOMElement $node, int $sequence = 0): self
     {
         $lnTo = new self();
         $lnTo->pt = Pt::load($xmlReader, $node);
+        $lnTo->sequence = $sequence;
 
         return $lnTo;
     }
