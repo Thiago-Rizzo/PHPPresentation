@@ -421,7 +421,8 @@ class PowerPoint2007 implements ReaderInterface
             if ($oElement instanceof DOMElement) {
                 $oElementColor = $xmlReader->getElement('a:solidFill', $oElement);
                 if ($oElementColor instanceof DOMElement) {
-                    $oColor = $this->loadStyleColor($xmlReader, $oElementColor);
+                    $oColor = SchemeColor::load($xmlReader, $oElementColor);
+
                     if ($oColor !== null) {
                         // Background
                         if ($oColor instanceof SchemeColor) {
@@ -566,7 +567,8 @@ class PowerPoint2007 implements ReaderInterface
                     }
                     $oElementSchemeColor = $xmlReader->getElement('a:defRPr/a:solidFill', $oElementLvl);
                     if ($oElementSchemeColor instanceof DOMElement) {
-                        $oColor = $this->loadStyleColor($xmlReader, $oElementSchemeColor);
+                        $oColor = SchemeColor::load($xmlReader, $oElementSchemeColor);
+
                         if ($oColor !== null) {
                             $oRTParagraph->getFont()->setColor($oColor);
                         }
@@ -690,7 +692,8 @@ class PowerPoint2007 implements ReaderInterface
         // Background color
         $oElementColor = $xmlReader->getElement('p:bgPr/a:solidFill', $oElement);
         if ($oElementColor instanceof DOMElement) {
-            $oColor = $this->loadStyleColor($xmlReader, $oElementColor);
+            $oColor = SchemeColor::load($xmlReader, $oElementColor);
+
             if ($oColor !== null) {
                 if ($oColor instanceof SchemeColor) {
                     $oBackground = new Slide\Background\SchemeColor();
@@ -707,7 +710,8 @@ class PowerPoint2007 implements ReaderInterface
         // Background scheme color
         $oElementSchemeColor = $xmlReader->getElement('p:bgRef', $oElement);
         if ($oElementSchemeColor instanceof DOMElement) {
-            $oColor = $this->loadStyleColor($xmlReader, $oElementSchemeColor);
+            $oColor = SchemeColor::load($xmlReader, $oElementSchemeColor);
+
             if ($oColor !== null) {
                 if ($oColor instanceof SchemeColor) {
                     $oBackground = new Slide\Background\SchemeColor();
@@ -776,19 +780,24 @@ class PowerPoint2007 implements ReaderInterface
         // Variables
         $fileRels = $oSlide->getRelsIndex();
 
-        $oElement = $xmlReader->getElement('p:nvPicPr/p:cNvPr', $node);
+        $oElement = $xmlReader->getElement('p:nvPicPr', $node);
         if ($oElement instanceof DOMElement) {
-            $oShape->setName($oElement->getAttribute('name'));
-            $oShape->setDescription($oElement->getAttribute('descr'));
+            $oShape->setNvPr(NvPr::load($xmlReader, $oElement));
 
-            // Hyperlink
-            $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
-            if (is_object($oElementHlinkClick)) {
-                if ($oElementHlinkClick->hasAttribute('tooltip')) {
-                    $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
-                }
-                if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
-                    $oShape->getHyperlink()->setUrl($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+            $oElement = $xmlReader->getElement('p:cNvPr', $node);
+            if ($oElement instanceof DOMElement) {
+                $oShape->setName($oElement->getAttribute('name'));
+                $oShape->setDescription($oElement->getAttribute('descr'));
+
+                // Hyperlink
+                $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
+                if (is_object($oElementHlinkClick)) {
+                    if ($oElementHlinkClick->hasAttribute('tooltip')) {
+                        $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
+                    }
+                    if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
+                        $oShape->getHyperlink()->setUrl($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+                    }
                 }
             }
         }
@@ -912,109 +921,26 @@ class PowerPoint2007 implements ReaderInterface
             $this->fileRels = $oSlide->getRelsIndex();
         }
 
-        $oElement = $xmlReader->getElement('p:spPr', $node);
+        $oElement = $xmlReader->getElement('p:nvSpPr', $node);
         if ($oElement instanceof DOMElement) {
-            $oFill = $this->loadStyleFill($xmlReader, $oElement);
-            $oShape->setFill($oFill);
+            $oShape->setNvPr(NvPr::load($xmlReader, $oElement));
 
-            $this->loadCustomGeometry($xmlReader, $oElement, $oShape);
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:ln', $node);
-        if ($oElement instanceof DOMElement) {
-            $oShape->setLnFill($this->loadStyleFill($xmlReader, $oElement));
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:prstGeom', $node);
-        if ($oElement instanceof DOMElement) {
-            $oShape->setGeom($oElement->getAttribute('prst') ?: 'rect');
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('rot')) {
-                $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
-            }
-
-            if ($oElement->hasAttribute('flipH')) {
-                $oShape->setFlipH($oElement->getAttribute('flipH'));
-            }
-
-            if ($oElement->hasAttribute('flipV')) {
-                $oShape->setFlipV($oElement->getAttribute('flipV'));
-            }
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:off', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('x')) {
-                $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
-            }
-            if ($oElement->hasAttribute('y')) {
-                $oShape->setOffsetY(CommonDrawing::emuToPixels((int)$oElement->getAttribute('y')));
-            }
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:ext', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('cx')) {
-                $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
-            }
-            if ($oElement->hasAttribute('cy')) {
-                $oShape->setHeight(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cy')));
-            }
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:effectLst', $node);
-        if ($oElement instanceof DOMElement) {
-            $oShape->getShadow()->setVisible(true);
-
-            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
-            if ($oSubElement instanceof DOMElement) {
-                if ($oSubElement->hasAttribute('blurRad')) {
-                    $oShape->getShadow()->setBlurRadius(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('blurRad')));
-                }
-                if ($oSubElement->hasAttribute('dist')) {
-                    $oShape->getShadow()->setDistance(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('dist')));
-                }
-                if ($oSubElement->hasAttribute('dir')) {
-                    $oShape->getShadow()->setDirection((int)CommonDrawing::angleToDegrees((int)$oSubElement->getAttribute('dir')));
-                }
-                if ($oSubElement->hasAttribute('algn')) {
-                    $oShape->getShadow()->setAlignment($oSubElement->getAttribute('algn'));
-                }
-            }
-
-            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
-            if ($oSubElement instanceof DOMElement) {
-                $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
-                if ($oColor !== null) {
-                    $oShape->getShadow()->setColor($oColor);
+            $oElement = $xmlReader->getElement('p:cNvPr', $oElement);
+            if ($oElement instanceof DOMElement) {
+                // Hyperlink
+                $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
+                if (is_object($oElementHlinkClick)) {
+                    if ($oElementHlinkClick->hasAttribute('tooltip')) {
+                        $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
+                    }
+                    if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
+                        $oShape->getHyperlink()->setUrl($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+                    }
                 }
             }
         }
 
-        $oElement = $xmlReader->getElement('p:nvSpPr/p:nvPr/p:ph', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('type')) {
-                $placeholder = new Placeholder($oElement->getAttribute('type'));
-                $oShape->setPlaceHolder($placeholder);
-            }
-        }
-
-        $oElement = $xmlReader->getElement('p:nvSpPr/p:cNvPr', $node);
-        if ($oElement instanceof DOMElement) {
-            // Hyperlink
-            $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
-            if (is_object($oElementHlinkClick)) {
-                if ($oElementHlinkClick->hasAttribute('tooltip')) {
-                    $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
-                }
-                if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
-                    $oShape->getHyperlink()->setUrl($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
-                }
-            }
-        }
+        $oShape->setSpPr(SpPr::load($xmlReader, $node));
 
         $arrayElements = $xmlReader->getElements('p:txBody/a:p', $node);
         foreach ($arrayElements as $oElement) {
@@ -1140,8 +1066,9 @@ class PowerPoint2007 implements ReaderInterface
                         }
                     }
 
-                    $oFill = $this->loadStyleFill($xmlReader, $oElementTcPr);
-                    if ($oFill instanceof Fill) {
+                    $oFill = Fill::load($xmlReader, $oElementTcPr);
+
+                    if ($oFill !== null) {
                         $oCell->setFill($oFill);
                     }
 
@@ -1190,7 +1117,7 @@ class PowerPoint2007 implements ReaderInterface
 
             $oStyle->getLnRef()->setIdx($oSubElement->getAttribute('idx'));
 
-            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            $oColor = SchemeColor::load($xmlReader, $oSubElement);
             $oStyle->getLnRef()->setSchemeClr($oColor);
         }
 
@@ -1199,7 +1126,7 @@ class PowerPoint2007 implements ReaderInterface
             $oStyle->setFillRef(new Color\FillRef());
             $oStyle->getFillRef()->setIdx($oSubElement->getAttribute('idx'));
 
-            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            $oColor = SchemeColor::load($xmlReader, $oSubElement);
             $oStyle->getFillRef()->setSchemeClr($oColor);
         }
 
@@ -1208,7 +1135,7 @@ class PowerPoint2007 implements ReaderInterface
             $oStyle->setEffectRef(new Color\EffectRef());
             $oStyle->getEffectRef()->setIdx($oSubElement->getAttribute('idx'));
 
-            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            $oColor = SchemeColor::load($xmlReader, $oSubElement);
             $oStyle->getEffectRef()->setSchemeClr($oColor);
         }
 
@@ -1217,7 +1144,7 @@ class PowerPoint2007 implements ReaderInterface
             $oStyle->setFontRef(new Color\FontRef());
             $oStyle->getFontRef()->setIdx($oSubElement->getAttribute('idx'));
 
-            $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
+            $oColor = SchemeColor::load($xmlReader, $oSubElement);
             $oStyle->getFontRef()->setSchemeClr($oColor);
         }
 
@@ -1303,7 +1230,7 @@ class PowerPoint2007 implements ReaderInterface
             }
             $oElementBuClr = $xmlReader->getElement('a:buClr', $oSubElement);
             if ($oElementBuClr instanceof DOMElement) {
-                $oColor = $this->loadStyleColor($xmlReader, $oElementBuClr);
+                $oColor = SchemeColor::load($xmlReader, $oElementBuClr);
                 if ($oColor !== null) {
                     $oParagraph->getBulletStyle()->setBulletColor($oColor);
                 }
@@ -1350,7 +1277,7 @@ class PowerPoint2007 implements ReaderInterface
                     // Color
                     $oElementSrgbClr = $xmlReader->getElement('a:solidFill', $oElementrPr);
                     if ($oElementSrgbClr instanceof DOMElement) {
-                        $oColor = $this->loadStyleColor($xmlReader, $oElementSrgbClr);
+                        $oColor = SchemeColor::load($xmlReader, $oElementSrgbClr);
                         if ($oColor !== null) {
                             $oText->getFont()->setColor($oColor);
                         }
@@ -1395,6 +1322,8 @@ class PowerPoint2007 implements ReaderInterface
                 }
             }
         }
+
+        $oParagraph->setEndParaRPr(RichText\Para\EndParaRPr::load($xmlReader, $oElement));
     }
 
     protected function loadStyleBorder(XMLReader $xmlReader, DOMElement $oElement, Border $oBorder): void
@@ -1402,6 +1331,7 @@ class PowerPoint2007 implements ReaderInterface
         if ($oElement->hasAttribute('w')) {
             $oBorder->setLineWidth($oElement->getAttribute('w') / 12700);
         }
+
         if ($oElement->hasAttribute('cmpd')) {
             $oBorder->setLineStyle($oElement->getAttribute('cmpd'));
         }
@@ -1413,7 +1343,7 @@ class PowerPoint2007 implements ReaderInterface
 
         $oElementColor = $xmlReader->getElement('a:solidFill', $oElement);
         if ($oElementColor instanceof DOMElement) {
-            $oColor = $this->loadStyleColor($xmlReader, $oElementColor);
+            $oColor = SchemeColor::load($xmlReader, $oElementColor);
             if ($oColor !== null) {
                 $oBorder->setColor($oColor);
             }
@@ -1423,99 +1353,6 @@ class PowerPoint2007 implements ReaderInterface
         if ($oElementDashStyle instanceof DOMElement && $oElementDashStyle->hasAttribute('val')) {
             $oBorder->setDashStyle($oElementDashStyle->getAttribute('val'));
         }
-    }
-
-    protected function loadStyleColor(XMLReader $xmlReader, DOMElement $oElement): ?Color
-    {
-        $oElementColor = $xmlReader->getElement('a:srgbClr', $oElement);
-        if ($oElementColor instanceof DOMElement) {
-            $oColor = new Color();
-            $oColor->setRGB($oElementColor->getAttribute('val'));
-
-            $oElementAlpha = $xmlReader->getElement('a:alpha', $oElementColor);
-            if ($oElementAlpha instanceof DOMElement && $oElementAlpha->hasAttribute('val')) {
-                $alpha = strtoupper(dechex((($oElementAlpha->getAttribute('val') / 1000) / 100) * 255));
-                $oColor->setRGB($oElementColor->getAttribute('val'), $alpha);
-            }
-
-            return $oColor;
-        }
-
-        $oElementColor = $xmlReader->getElement('a:schemeClr', $oElement);
-        if ($oElementColor instanceof DOMElement) {
-            $oColor = new SchemeColor();
-            $oColor->setValue($oElementColor->getAttribute('val'));
-
-            $oElementSchemeColorShade = $xmlReader->getElement('a:shade', $oElementColor);
-            if ($oElementSchemeColorShade instanceof DOMElement && $oElementSchemeColorShade->hasAttribute('val')) {
-                $oColor->setShade($oElementSchemeColorShade->getAttribute('val'));
-            }
-
-            $oElementAlpha = $xmlReader->getElement('a:alpha', $oElementColor);
-            if ($oElementAlpha instanceof DOMElement && $oElementAlpha->hasAttribute('val')) {
-                $alpha = $oElementAlpha->getAttribute('val') / 1000;
-                $oColor->setAlpha($alpha);
-            }
-
-            return $oColor;
-        }
-
-        return null;
-    }
-
-    protected function loadStyleFill(XMLReader $xmlReader, DOMElement $oElement): ?Fill
-    {
-        // Gradient fill
-        $oElementFill = $xmlReader->getElement('a:gradFill', $oElement);
-        if ($oElementFill instanceof DOMElement) {
-            $oFill = new Fill();
-            $oFill->setFillType(Fill::FILL_GRADIENT_LINEAR);
-
-            $oElementColor = $xmlReader->getElement('a:gsLst/a:gs[@pos="0"]', $oElementFill);
-            if ($oElementColor instanceof DOMElement) {
-                $oColor = $this->loadStyleColor($xmlReader, $oElementColor);
-                if ($oColor !== null) {
-                    $oFill->setStartColor($oColor);
-                }
-            }
-
-            $oElementColor = $xmlReader->getElement('a:gsLst/a:gs[@pos="100000"]', $oElementFill);
-            if ($oElementColor instanceof DOMElement) {
-                $oColor = $this->loadStyleColor($xmlReader, $oElementColor);
-                if ($oColor !== null) {
-                    $oFill->setEndColor($oColor);
-                }
-            }
-
-            $oRotation = $xmlReader->getElement('a:lin', $oElementFill);
-            if ($oRotation instanceof DOMElement && $oRotation->hasAttribute('ang')) {
-                $oFill->setRotation(CommonDrawing::angleToDegrees((int)$oRotation->getAttribute('ang')));
-            }
-
-            return $oFill;
-        }
-
-        // Solid fill
-        $oElementFill = $xmlReader->getElement('a:solidFill', $oElement);
-        if ($oElementFill instanceof DOMElement) {
-            $oFill = new Fill();
-            $oFill->setFillType(Fill::FILL_SOLID);
-
-            $oColor = $this->loadStyleColor($xmlReader, $oElementFill);
-            if ($oColor !== null) {
-                $oFill->setStartColor($oColor);
-            }
-
-            return $oFill;
-        }
-
-        // No fill
-        $oElementFill = $xmlReader->getElement('a:noFill', $oElement);
-        if ($oElementFill instanceof DOMElement) {
-            return new Fill();
-        }
-
-        return null;
     }
 
     protected function loadRels(string $fileRels): void
