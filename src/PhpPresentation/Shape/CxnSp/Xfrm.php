@@ -19,11 +19,14 @@ class Xfrm
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
         $element = $xmlReader->getElement('a:xfrm', $node);
-        if (!$element) {
-            return null;
-        }
-
         $xfrm = new self();
+
+        if (!$element) {
+            $xfrm->off = new Off();
+            $xfrm->ext = new Ext();
+
+            return $xfrm;
+        }
 
         $xfrm->flipH = $element->getAttribute('flipH');
         $xfrm->flipV = $element->getAttribute('flipV');
@@ -35,7 +38,7 @@ class Xfrm
         return $xfrm;
     }
 
-    public function write(XMLWriter $writer): void
+    public function write(XMLWriter $writer, $shape = null ): void
     {
         $writer->startElement('a:xfrm');
 
@@ -43,8 +46,8 @@ class Xfrm
         $this->flipH !== '' && $writer->writeAttribute('flipH', $this->flipH);
         $this->flipV !== '' && $writer->writeAttribute('flipV', $this->flipV);
 
-        $this->off && $this->off->write($writer);
-        $this->ext && $this->ext->write($writer);
+        $this->off && $this->off->write($writer, $shape);
+        $this->ext && $this->ext->write($writer, $shape);
 
         $writer->endElement();
     }

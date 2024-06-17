@@ -200,7 +200,7 @@ class Shadow implements ComparableInterface
     /**
      * Set Color.
      */
-    public function setColor(Color $pValue = null): self
+    public function setColor(?Color $pValue = null): self
     {
         $this->color = $pValue;
 

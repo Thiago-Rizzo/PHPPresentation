@@ -21,17 +21,14 @@ declare(strict_types=1);
 namespace PhpOffice\PhpPresentation\Shape;
 
 use PhpOffice\PhpPresentation\AbstractShape;
-use PhpOffice\PhpPresentation\ComparableInterface;
 use PhpOffice\PhpPresentation\Exception\OutOfBoundsException;
-use PhpOffice\PhpPresentation\Shape\Geometry\Geometry;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
 use PhpOffice\PhpPresentation\Shape\RichText\TextElementInterface;
-use PhpOffice\PhpPresentation\Style\Fill;
 
 /**
  * \PhpOffice\PhpPresentation\Shape\RichText.
  */
-class RichText extends AbstractShape implements ComparableInterface
+class RichText extends AbstractShape
 {
     /** Wrapping */
     public const WRAP_NONE = 'none';
@@ -145,8 +142,6 @@ class RichText extends AbstractShape implements ComparableInterface
      */
     private $topInset = 4.8;
 
-    private ?string $geom = null;
-
     /**
      * Horizontal Auto Shrink.
      *
@@ -176,10 +171,6 @@ class RichText extends AbstractShape implements ComparableInterface
     private $lnSpcReduction = null;
 
     protected ?Style $style = null;
-
-    protected ?Fill $lnFill = null;
-
-    protected ?Geometry $geometry = null;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText instance.
@@ -737,49 +728,6 @@ class RichText extends AbstractShape implements ComparableInterface
         $this->style = $style;
 
         return $this;
-    }
-
-    public function setLnFill(?Fill $pValue = null): self
-    {
-        $this->lnFill = $pValue;
-
-        return $this;
-    }
-
-    public function getLnFill(): ?Fill
-    {
-        return $this->lnFill;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getGeom(): ?string
-    {
-        return $this->geom;
-    }
-
-    /**
-     * @param string|null $geom
-     * @return RichText
-     */
-    public function setGeom(?string $geom): self
-    {
-        $this->geom = $geom;
-
-        return $this;
-    }
-
-    public function setGeometry(?Geometry $geometry = null): self
-    {
-        $this->geometry = $geometry;
-
-        return $this;
-    }
-
-    public function getGeometry(): ?Geometry
-    {
-        return $this->geometry;
     }
 
     /**

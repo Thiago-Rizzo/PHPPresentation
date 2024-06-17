@@ -192,22 +192,12 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         $shape->getNvPr() && $shape->getNvPr()->write($objWriter);
 
-                $objWriter->endElement();
-            }
-        }
-        $this->writeFill($objWriter, $shape->getFill());
-
-        if ($shape->getLnFill() !== null) {
-            $objWriter->startElement('a:ln');
-            $this->writeFill($objWriter, $shape->getLnFill());
-            $objWriter->endElement();
-        }
-
-        $this->writeBorder($objWriter, $shape->getBorder(), '');
-        $this->writeShadow($objWriter, $shape->getShadow());
-
-        // > p:sp\p:spPr
         $objWriter->endElement();
+
+        $shape->getFill() && $shape->getFill()->write($objWriter);
+
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
+
         // p:style
         $this->writeStyle($objWriter, $shape->getStyle());
         // p:txBody
@@ -700,69 +690,13 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $objWriter->endElement();
         // p:cNvCxnSpPr
         $objWriter->writeElement('p:cNvCxnSpPr', null);
-        $objWriter->endElement();
-        // p:spPr
-        $objWriter->startElement('p:spPr');
-        // a:xfrm
-        $objWriter->startElement('a:xfrm');
-        if ($shape->getWidth() >= 0 && $shape->getHeight() >= 0) {
-            // a:off
-            $objWriter->startElement('a:off');
-            $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
-            $objWriter->writeAttribute('y', CommonDrawing::pixelsToEmu($shape->getOffsetY()));
-            $objWriter->endElement();
-            // a:ext
-            $objWriter->startElement('a:ext');
-            $objWriter->writeAttribute('cx', CommonDrawing::pixelsToEmu($shape->getWidth()));
-            $objWriter->writeAttribute('cy', CommonDrawing::pixelsToEmu($shape->getHeight()));
-            $objWriter->endElement();
-        } elseif ($shape->getWidth() < 0 && $shape->getHeight() < 0) {
-            // a:off
-            $objWriter->startElement('a:off');
-            $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX() + $shape->getWidth()));
-            $objWriter->writeAttribute('y', CommonDrawing::pixelsToEmu($shape->getOffsetY() + $shape->getHeight()));
-            $objWriter->endElement();
-            // a:ext
-            $objWriter->startElement('a:ext');
-            $objWriter->writeAttribute('cx', CommonDrawing::pixelsToEmu(-$shape->getWidth()));
-            $objWriter->writeAttribute('cy', CommonDrawing::pixelsToEmu(-$shape->getHeight()));
-            $objWriter->endElement();
-        } elseif ($shape->getHeight() < 0) {
-            $objWriter->writeAttribute('flipV', 1);
-            // a:off
-            $objWriter->startElement('a:off');
-            $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
-            $objWriter->writeAttribute('y', CommonDrawing::pixelsToEmu($shape->getOffsetY() + $shape->getHeight()));
-            $objWriter->endElement();
-            // a:ext
-            $objWriter->startElement('a:ext');
-            $objWriter->writeAttribute('cx', CommonDrawing::pixelsToEmu($shape->getWidth()));
-            $objWriter->writeAttribute('cy', CommonDrawing::pixelsToEmu(-$shape->getHeight()));
-            $objWriter->endElement();
-        } elseif ($shape->getWidth() < 0) {
-            $objWriter->writeAttribute('flipV', 1);
-            // a:off
-            $objWriter->startElement('a:off');
-            $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX() + $shape->getWidth()));
-            $objWriter->writeAttribute('y', CommonDrawing::pixelsToEmu($shape->getOffsetY()));
-            $objWriter->endElement();
-            // a:ext
-            $objWriter->startElement('a:ext');
-            $objWriter->writeAttribute('cx', CommonDrawing::pixelsToEmu(-$shape->getWidth()));
-            $objWriter->writeAttribute('cy', CommonDrawing::pixelsToEmu($shape->getHeight()));
-            $objWriter->endElement();
-        }
-        $objWriter->endElement();
-        // a:prstGeom
-        $objWriter->startElement('a:prstGeom');
-        $objWriter->writeAttribute('prst', 'line');
 
-        $objWriter->writeElement('a:avLst');
         $shape->getNvPr() && $shape->getNvPr()->write($objWriter);
 
         $objWriter->endElement();
-        $this->writeBorder($objWriter, $shape->getBorder(), '');
-        $objWriter->endElement();
+
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
+
         $objWriter->endElement();
     }
 
@@ -773,44 +707,11 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
      */
     protected function writeCxnSp(XMLWriter $objWriter, CxnSp $shape, $shapeId): void
     {
-        if ($shape->nvCxnSpPr) {
-            if ($shape->nvCxnSpPr->cNvPr) {
-                $shape->nvCxnSpPr->cNvPr->id = (string)$shapeId;
-            }
+        if ($shape->nvCxnSpPr && $shape->nvCxnSpPr->cNvPr) {
+            $shape->nvCxnSpPr->cNvPr->id = (string)$shapeId;
         }
 
         $shape->write($objWriter);
-    }
-
-    /**
-     * Write Shadow.
-     */
-    protected function writeShadow(XMLWriter $objWriter, Shadow $oShadow): void
-    {
-        if (!($oShadow instanceof Shadow)) {
-            return;
-        }
-
-        if (!$oShadow->isVisible()) {
-            return;
-        }
-
-        // a:effectLst
-        $objWriter->startElement('a:effectLst');
-
-        // a:outerShdw
-        $objWriter->startElement('a:outerShdw');
-        $objWriter->writeAttribute('blurRad', CommonDrawing::pixelsToEmu($oShadow->getBlurRadius()));
-        $objWriter->writeAttribute('dist', CommonDrawing::pixelsToEmu($oShadow->getDistance()));
-        $objWriter->writeAttribute('dir', CommonDrawing::degreesToAngle((int)$oShadow->getDirection()));
-        $objWriter->writeAttribute('algn', $oShadow->getAlignment());
-        $objWriter->writeAttribute('rotWithShape', '0');
-
-        $this->writeColor($objWriter, $oShadow->getColor(), $oShadow->getAlpha());
-
-        $objWriter->endElement();
-
-        $objWriter->endElement();
     }
 
     /**
@@ -1154,46 +1055,14 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $objWriter->endElement();
         // p:sp\p:nvSpPr\p:cNvSpPr
         $objWriter->writeElement('p:cNvSpPr');
-        // p:sp\p:nvSpPr\p:nvPr
-        $objWriter->writeElement('p:nvPr');
+
+        $shape->getNvPr() && $shape->getNvPr()->write($objWriter);
+
         // p:sp\p:nvSpPr\
         $objWriter->endElement();
 
-        // p:sp\p:spPr
-        $objWriter->startElement('p:spPr');
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
 
-        // p:sp\p:spPr\a:xfrm
-        $objWriter->startElement('a:xfrm');
-        $objWriter->writeAttributeIf($shape->getRotation() != 0, 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
-        $objWriter->writeAttributeIf($shape->getFlipH() !== '', 'flipH', $shape->getFlipH());
-        $objWriter->writeAttributeIf($shape->getFlipV() !== '', 'flipV', $shape->getFlipV());
-        // p:sp\p:spPr\a:xfrm\a:off
-        $objWriter->startElement('a:off');
-        $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
-        $objWriter->writeAttribute('y', CommonDrawing::pixelsToEmu($shape->getOffsetY()));
-        $objWriter->endElement();
-        // p:sp\p:spPr\a:xfrm\a:ext
-        $objWriter->startElement('a:ext');
-        $objWriter->writeAttribute('cx', CommonDrawing::pixelsToEmu($shape->getWidth()));
-        $objWriter->writeAttribute('cy', CommonDrawing::pixelsToEmu($shape->getHeight()));
-        $objWriter->endElement();
-        // p:sp\p:spPr\a:xfrm\
-        $objWriter->endElement();
-
-        // p:sp\p:spPr\a:prstGeom
-        $objWriter->startElement('a:prstGeom');
-        $objWriter->writeAttribute('prst', $shape->getType());
-        // p:sp\p:spPr\a:prstGeom\a:avLst
-        $objWriter->writeElement('a:avLst');
-        // p:sp\p:spPr\a:prstGeom\
-        $objWriter->endElement();
-        // Fill
-        $this->writeFill($objWriter, $shape->getFill());
-        // Outline
-        $this->writeOutline($objWriter, $shape->getOutline());
-
-        // p:sp\p:spPr\
-        $objWriter->endElement();
         // p:sp\p:txBody
         $objWriter->startElement('p:txBody');
         // p:sp\p:txBody\a:bodyPr
@@ -1323,16 +1192,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         $objWriter->endElement();
 
-        // p:cNvPicPr
-        $objWriter->startElement('p:cNvPicPr');
-
-        // a:picLocks
-        $objWriter->startElement('a:picLocks');
-        $objWriter->writeAttribute('noChangeAspect', '1');
-        $objWriter->endElement();
-
-        // #p:cNvPicPr
-        $objWriter->endElement();
+        $shape->getCNvPicPr() && $shape->getCNvPicPr()->write($objWriter);
 
         // p:nvPr
         $objWriter->startElement('p:nvPr');
@@ -1368,43 +1228,12 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $objWriter->endElement();
         $objWriter->endElement();
 
-        $objWriter->startElement('p:spPr');
-        // a:xfrm
-        $objWriter->startElement('a:xfrm');
-        $objWriter->writeAttributeIf(0 != $shape->getRotation(), 'rot', CommonDrawing::degreesToAngle((int)$shape->getRotation()));
-        $objWriter->writeAttributeIf($shape->getFlipH() !== '', 'flipH', $shape->getFlipH());
-        $objWriter->writeAttributeIf($shape->getFlipV() !== '', 'flipV', $shape->getFlipV());
-        // a:off
-        $objWriter->startElement('a:off');
-        $objWriter->writeAttribute('x', CommonDrawing::pixelsToEmu($shape->getOffsetX()));
-        $objWriter->writeAttribute('y', CommonDrawing::pixelsToEmu($shape->getOffsetY()));
-        $objWriter->endElement();
-
-        // a:ext
-        $objWriter->startElement('a:ext');
-        $objWriter->writeAttribute('cx', CommonDrawing::pixelsToEmu($shape->getWidth()));
-        $objWriter->writeAttribute('cy', CommonDrawing::pixelsToEmu($shape->getHeight()));
-        $objWriter->endElement();
-
-        $objWriter->endElement();
-
-        if ($shape->getGeometry()) {
-            $shape->getGeometry()->write($objWriter);
-        } else {
-            $objWriter->startElement('a:prstGeom');
-            $objWriter->writeAttribute('prst', 'rect');
-            $objWriter->writeElement('a:avLst');
-            $objWriter->endElement();
         if ($shape->getBlipFill()) {
             $shape->getBlipFill()->getBlip()->setEmbed($shape->relationId);
             $shape->getBlipFill()->write($objWriter);
         }
 
-        $this->writeFill($objWriter, $shape->getFill());
-        $this->writeBorder($objWriter, $shape->getBorder(), '');
-        $this->writeShadow($objWriter, $shape->getShadow());
-
-        $objWriter->endElement();
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
 
         $objWriter->endElement();
     }

@@ -21,14 +21,13 @@ declare(strict_types=1);
 namespace PhpOffice\PhpPresentation\Shape;
 
 use PhpOffice\PhpPresentation\AbstractShape;
-use PhpOffice\PhpPresentation\ComparableInterface;
 use PhpOffice\PhpPresentation\Shape\BlipFill\BlipFill;
 use PhpOffice\PhpPresentation\Shape\Geometry\Geometry;
 
 /**
  * Abstract drawing.
  */
-abstract class AbstractGraphic extends AbstractShape implements ComparableInterface
+abstract class AbstractGraphic extends AbstractShape
 {
     /**
      * Image counter.

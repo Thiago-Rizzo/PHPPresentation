@@ -34,10 +34,12 @@ use PhpOffice\PhpPresentation\Exception\InvalidFileFormatException;
 use PhpOffice\PhpPresentation\PhpPresentation;
 use PhpOffice\PhpPresentation\PresentationProperties;
 use PhpOffice\PhpPresentation\Shape\BlipFill\BlipFill;
+use PhpOffice\PhpPresentation\Shape\CxnSp\CNvPicPr;
+use PhpOffice\PhpPresentation\Shape\CxnSp\CxnSp;
+use PhpOffice\PhpPresentation\Shape\CxnSp\NvPr;
+use PhpOffice\PhpPresentation\Shape\CxnSp\SpPr;
 use PhpOffice\PhpPresentation\Shape\Drawing\Base64;
 use PhpOffice\PhpPresentation\Shape\Drawing\Gd;
-use PhpOffice\PhpPresentation\Shape\Geometry\Geometry;
-use PhpOffice\PhpPresentation\Shape\Placeholder;
 use PhpOffice\PhpPresentation\Shape\RichText;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
 use PhpOffice\PhpPresentation\Shape\Style;
@@ -55,7 +57,6 @@ use PhpOffice\PhpPresentation\Style\Fill;
 use PhpOffice\PhpPresentation\Style\Font;
 use PhpOffice\PhpPresentation\Style\SchemeColor;
 use PhpOffice\PhpPresentation\Style\TextStyle;
-use PhpOffice\PhpPresentation\Shape\CxnSp\CxnSp;
 use ZipArchive;
 
 /**
@@ -783,6 +784,7 @@ class PowerPoint2007 implements ReaderInterface
         $oElement = $xmlReader->getElement('p:nvPicPr', $node);
         if ($oElement instanceof DOMElement) {
             $oShape->setNvPr(NvPr::load($xmlReader, $oElement));
+            $oShape->setCNvPicPr(CNvPicPr::load($xmlReader, $oElement));
 
             $oElement = $xmlReader->getElement('p:cNvPr', $node);
             if ($oElement instanceof DOMElement) {
@@ -804,72 +806,7 @@ class PowerPoint2007 implements ReaderInterface
 
         $this->loadBlipFill($xmlReader, $node, $oShape, $fileRels);
 
-        $oElement = $xmlReader->getElement('p:spPr', $node);
-        if ($oElement instanceof DOMElement) {
-            $oFill = $this->loadStyleFill($xmlReader, $oElement);
-            $oShape->setFill($oFill);
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr', $node);
-        if ($oElement instanceof DOMElement) {
-            $this->loadCustomGeometry($xmlReader, $oElement, $oShape);
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:xfrm', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('rot')) {
-                $oShape->setRotation((int)CommonDrawing::angleToDegrees((int)$oElement->getAttribute('rot')));
-            }
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:off', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('x')) {
-                $oShape->setOffsetX(CommonDrawing::emuToPixels((int)$oElement->getAttribute('x')));
-            }
-            if ($oElement->hasAttribute('y')) {
-                $oShape->setOffsetY(CommonDrawing::emuToPixels((int)$oElement->getAttribute('y')));
-            }
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:xfrm/a:ext', $node);
-        if ($oElement instanceof DOMElement) {
-            if ($oElement->hasAttribute('cx')) {
-                $oShape->setWidth(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cx')));
-            }
-            if ($oElement->hasAttribute('cy')) {
-                $oShape->setHeight(CommonDrawing::emuToPixels((int)$oElement->getAttribute('cy')));
-            }
-        }
-
-        $oElement = $xmlReader->getElement('p:spPr/a:effectLst', $node);
-        if ($oElement instanceof DOMElement) {
-            $oShape->getShadow()->setVisible(true);
-
-            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
-            if ($oSubElement instanceof DOMElement) {
-                if ($oSubElement->hasAttribute('blurRad')) {
-                    $oShape->getShadow()->setBlurRadius(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('blurRad')));
-                }
-                if ($oSubElement->hasAttribute('dist')) {
-                    $oShape->getShadow()->setDistance(CommonDrawing::emuToPixels((int)$oSubElement->getAttribute('dist')));
-                }
-                if ($oSubElement->hasAttribute('dir')) {
-                    $oShape->getShadow()->setDirection((int)CommonDrawing::angleToDegrees((int)$oSubElement->getAttribute('dir')));
-                }
-                if ($oSubElement->hasAttribute('algn')) {
-                    $oShape->getShadow()->setAlignment($oSubElement->getAttribute('algn'));
-                }
-            }
-
-            $oSubElement = $xmlReader->getElement('a:outerShdw', $oElement);
-            if ($oSubElement instanceof DOMElement) {
-                $oColor = $this->loadStyleColor($xmlReader, $oSubElement);
-                if ($oColor !== null) {
-                    $oShape->getShadow()->setColor($oColor);
-                }
-            }
-        }
+        $oShape->setSpPr(SpPr::load($xmlReader, $node));
 
         $oSlide->addShape($oShape);
     }
@@ -915,7 +852,7 @@ class PowerPoint2007 implements ReaderInterface
         $oShape->setParagraphs([]);
 
         $fileRels = $oSlide->getRelsIndex();
-        
+
         // Variables
         if ($oSlide instanceof AbstractSlide) {
             $this->fileRels = $oSlide->getRelsIndex();
@@ -957,11 +894,6 @@ class PowerPoint2007 implements ReaderInterface
         if (count($oShape->getParagraphs()) > 0) {
             $oShape->setActiveParagraph(0);
         }
-    }
-
-    public function loadCustomGeometry(XMLReader $xmlReader, DOMElement $node, $oShape): void
-    {
-        $oShape->setGeometry(Geometry::load($xmlReader, $node));
     }
 
     protected function loadShapeTable(XMLReader $xmlReader, DOMElement $node, AbstractSlide $oSlide): void

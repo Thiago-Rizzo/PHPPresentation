@@ -21,7 +21,9 @@ declare(strict_types=1);
 namespace PhpOffice\PhpPresentation;
 
 use PhpOffice\PhpPresentation\Exception\ShapeContainerAlreadyAssignedException;
+use PhpOffice\PhpPresentation\Shape\CxnSp\CNvPicPr;
 use PhpOffice\PhpPresentation\Shape\CxnSp\NvPr;
+use PhpOffice\PhpPresentation\Shape\CxnSp\SpPr;
 use PhpOffice\PhpPresentation\Shape\Hyperlink;
 use PhpOffice\PhpPresentation\Style\Border;
 use PhpOffice\PhpPresentation\Style\Fill;
@@ -109,7 +111,11 @@ abstract class AbstractShape implements ComparableInterface
 
     protected string $flipH = '';
 
+    protected ?SpPr $spPr = null;
+
     protected ?NvPr $nvPr = null;
+
+    protected ?CNvPicPr $cNvPicPr = null;
 
     /**
      * Create a new self.
@@ -436,6 +442,18 @@ abstract class AbstractShape implements ComparableInterface
         $this->flipV = $flipV;
     }
 
+    public function getSpPr(): ?SpPr
+    {
+        return $this->spPr;
+    }
+
+    public function setSpPr(?SpPr $spPr): self
+    {
+        $this->spPr = $spPr;
+
+        return $this;
+    }
+
     public function getNvPr(): ?NvPr
     {
         return $this->nvPr;
@@ -444,6 +462,18 @@ abstract class AbstractShape implements ComparableInterface
     public function setNvPr(?NvPr $nvPr): self
     {
         $this->nvPr = $nvPr;
+
+        return $this;
+    }
+
+    public function getCNvPicPr(): ?CNvPicPr
+    {
+        return $this->cNvPicPr;
+    }
+
+    public function setCNvPicPr(?CNvPicPr $cNvPicPr): self
+    {
+        $this->cNvPicPr = $cNvPicPr;
 
         return $this;
     }

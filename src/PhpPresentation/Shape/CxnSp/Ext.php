@@ -39,14 +39,14 @@ class Ext
         return $ext;
     }
 
-    public function write(XMLWriter $writer): void
+    public function write(XMLWriter $writer, $shape = null ): void
     {
         $writer->startElement('a:ext');
 
         $this->uri !== '' && $writer->writeAttribute('uri', $this->uri);
 
-        $this->cx ??= 0;
-        $this->cy ??= 0;
+        $this->cx ??= $shape->getWidth() ?? 0;
+        $this->cy ??= $shape->getHeight() ?? 0;
 
         $writer->writeAttribute('cx', CommonDrawing::pixelsToEmu((float)$this->cx));
         $writer->writeAttribute('cy', CommonDrawing::pixelsToEmu((float)$this->cy));
