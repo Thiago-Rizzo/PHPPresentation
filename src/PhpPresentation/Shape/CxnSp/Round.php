@@ -6,30 +6,21 @@ use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
 
-class NvPr
+class Round
 {
-    public ?Ph $ph = null;
-
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
-        $element = $xmlReader->getElement('p:nvPr', $node);
+        $element = $xmlReader->getElement('a:round', $node);
         if (!$element) {
             return null;
         }
 
-        $nvPr = new self();
-
-        $nvPr->ph = Ph::load($xmlReader, $element);
-
-        return $nvPr;
+        return new self();
     }
 
     public function write(XMLWriter $writer): void
     {
-        $writer->startElement('p:nvPr');
-
-        $this->ph && $this->ph->write($writer);
-
+        $writer->startElement('a:round');
         $writer->endElement();
     }
 }

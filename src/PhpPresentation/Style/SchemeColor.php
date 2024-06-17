@@ -23,15 +23,16 @@ namespace PhpOffice\PhpPresentation\Style;
 use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
+use PhpOffice\PhpPresentation\Style\Color\LumMod;
+use PhpOffice\PhpPresentation\Style\Color\LumOff;
 
 class SchemeColor extends Color
 {
-    /**
-     * @var string
-     */
-    protected $value;
-
+    protected string $value = '';
     protected ?string $shade = null;
+
+    public ?LumMod $lumMod = null;
+    public ?LumOff $lumOff = null;
 
     public function getValue(): string
     {
@@ -78,13 +79,17 @@ class SchemeColor extends Color
             $color->setAlpha($alpha);
         }
 
+        $color->lumMod = LumMod::load($xmlReader, $element);
+        $color->lumOff = LumOff::load($xmlReader, $element);
+
         return $color;
     }
 
     public function write(XMLWriter $writer): void
     {
         $writer->startElement('a:schemeClr');
-        $writer->writeAttribute('val', $this->getValue());
+
+        $this->getValue() !== '' && $writer->writeAttribute('val', $this->getValue());
 
         if ($this->getShade() !== null) {
             $writer->startElement('a:shade');
@@ -92,9 +97,14 @@ class SchemeColor extends Color
             $writer->endElement();
         }
 
-        $writer->startElement('a:alpha');
-        $writer->writeAttribute('val', $this->getAlpha() * 1000);
-        $writer->endElement();
+        if ($this->getAlpha() !== 100) {
+            $writer->startElement('a:alpha');
+            $writer->writeAttribute('val', $this->getAlpha() * 1000);
+            $writer->endElement();
+        }
+
+        $this->lumMod && $this->lumMod->write($writer);
+        $this->lumOff && $this->lumOff->write($writer);
 
         $writer->endElement();
     }

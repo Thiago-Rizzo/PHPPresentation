@@ -3,31 +3,38 @@
 namespace PhpOffice\PhpPresentation\Shape\CxnSp;
 
 use DOMElement;
+use PhpOffice\Common\Drawing as CommonDrawing;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
 
 class Ext
 {
     public string $uri = '';
-    public string $cx = '';
-    public string $cy = '';
+    public ?int $cx = null;
+    public ?int $cy = null;
 
     public ?CreationId $creationId = null;
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
-        $element = $xmlReader->getElement('a:ext', $node);
-        if (!$element) {
+        $dom = $xmlReader->getElement('a:ext', $node);
+        if (!$dom) {
             return null;
         }
 
         $ext = new self();
 
-        $ext->uri = $element->getAttribute('uri');
-        $ext->cx = $element->getAttribute('cx');
-        $ext->cy = $element->getAttribute('cy');
+        $ext->uri = $dom->getAttribute('uri');
 
-//        $ext->creationId = CreationId::load($xmlReader, $element);
+        if ($dom->hasAttribute('cx')) {
+            $ext->cx = CommonDrawing::emuToPixels((int)$dom->getAttribute('cx'));
+        }
+
+        if ($dom->hasAttribute('cy')) {
+            $ext->cy = CommonDrawing::emuToPixels((int)$dom->getAttribute('cy'));
+        }
+
+//        $ext->creationId = CreationId::load($xmlReader, $dom);
 
         return $ext;
     }
@@ -37,8 +44,12 @@ class Ext
         $writer->startElement('a:ext');
 
         $this->uri !== '' && $writer->writeAttribute('uri', $this->uri);
-        $this->cx !== '' && $writer->writeAttribute('cx', $this->cx);
-        $this->cy !== '' && $writer->writeAttribute('cy', $this->cy);
+
+        $this->cx ??= 0;
+        $this->cy ??= 0;
+
+        $writer->writeAttribute('cx', CommonDrawing::pixelsToEmu((float)$this->cx));
+        $writer->writeAttribute('cy', CommonDrawing::pixelsToEmu((float)$this->cy));
 
 //        $this->creationId && $this->creationId->write($writer);
 

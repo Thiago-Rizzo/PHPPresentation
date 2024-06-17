@@ -9,9 +9,7 @@ use PhpOffice\Common\XMLWriter;
 class TailEnd
 {
     public string $type = '';
-
     public string $w = '';
-
     public string $len = '';
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self

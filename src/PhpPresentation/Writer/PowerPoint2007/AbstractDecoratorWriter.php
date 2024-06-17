@@ -23,10 +23,8 @@ namespace PhpOffice\PhpPresentation\Writer\PowerPoint2007;
 use PhpOffice\Common\Drawing as CommonDrawing;
 use PhpOffice\Common\XMLWriter;
 use PhpOffice\PhpPresentation\Style\Border;
-use PhpOffice\PhpPresentation\Style\Color;
 use PhpOffice\PhpPresentation\Style\Fill;
 use PhpOffice\PhpPresentation\Style\Outline;
-use PhpOffice\PhpPresentation\Style\SchemeColor;
 
 abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer\AbstractDecoratorWriter
 {
@@ -95,7 +93,7 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
         } else {
             // a:solidFill
             $objWriter->startElement('a:solidFill');
-            $this->writeColor($objWriter, $pBorder->getColor());
+            $pBorder->getColor() && $pBorder->getColor()->write($objWriter);
             $objWriter->endElement();
         }
 
@@ -124,37 +122,6 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
         $objWriter->endElement();
     }
 
-    protected function writeColor(XMLWriter $objWriter, Color $color, ?int $alpha = null): void
-    {
-        if ($color instanceof SchemeColor) {
-            // a:schemeClr
-            $objWriter->startElement('a:schemeClr');
-            $objWriter->writeAttribute('val', $color->getValue());
-
-            // a:shade
-            if ($color->getShade() !== null) {
-                $objWriter->startElement('a:shade');
-                $objWriter->writeAttribute('val', $color->getShade());
-                $objWriter->endElement();
-            }
-        } else {
-            // a:srgbClr
-            $objWriter->startElement('a:srgbClr');
-            $objWriter->writeAttribute('val', $color->getRGB());
-        }
-
-        if (is_null($alpha)) {
-            $alpha = $color->getAlpha();
-        }
-
-        // a:alpha
-        $objWriter->startElement('a:alpha');
-        $objWriter->writeAttribute('val', $alpha * 1000);
-        $objWriter->endElement();
-
-        $objWriter->endElement();
-    }
-
     /**
      * Write Fill.
      *
@@ -167,43 +134,7 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
             return;
         }
 
-        // Is it a fill?
-        if (Fill::FILL_NONE == $pFill->getFillType()) {
-            $objWriter->writeElement('a:noFill');
-
-            return;
-        }
-
-        // Is it a solid fill?
-        if (Fill::FILL_SOLID == $pFill->getFillType()) {
-            $this->writeSolidFill($objWriter, $pFill);
-
-            return;
-        }
-
-        // Is it a gradient fill?
-        if (Fill::FILL_GRADIENT_LINEAR == $pFill->getFillType() || Fill::FILL_GRADIENT_PATH == $pFill->getFillType()) {
-            $this->writeGradientFill($objWriter, $pFill);
-
-            return;
-        }
-
-        // Is it a pattern fill?
-        $this->writePatternFill($objWriter, $pFill);
-    }
-
-    /**
-     * Write Solid Fill.
-     *
-     * @param XMLWriter $objWriter XML Writer
-     * @param Fill $pFill Fill style
-     */
-    protected function writeSolidFill(XMLWriter $objWriter, Fill $pFill): void
-    {
-        // a:gradFill
-        $objWriter->startElement('a:solidFill');
-        $this->writeColor($objWriter, $pFill->getStartColor());
-        $objWriter->endElement();
+        $pFill->write($objWriter);
     }
 
     /**
@@ -214,32 +145,15 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
      */
     protected function writeGradientFill(XMLWriter $objWriter, Fill $pFill): void
     {
-        // a:gradFill
-        $objWriter->startElement('a:gradFill');
-
-        // a:gsLst
-        $objWriter->startElement('a:gsLst');
-        // a:gs
-        $objWriter->startElement('a:gs');
-        $objWriter->writeAttribute('pos', '0');
-        $this->writeColor($objWriter, $pFill->getStartColor());
-        $objWriter->endElement();
-
-        // a:gs
-        $objWriter->startElement('a:gs');
-        $objWriter->writeAttribute('pos', '100000');
-        $this->writeColor($objWriter, $pFill->getEndColor());
-        $objWriter->endElement();
-
-        $objWriter->endElement();
+        $pFill->write($objWriter);
 
         // a:lin
-        $objWriter->startElement('a:lin');
-        $objWriter->writeAttribute('ang', CommonDrawing::degreesToAngle((int)$pFill->getRotation()));
-        $objWriter->writeAttribute('scaled', '0');
-        $objWriter->endElement();
-
-        $objWriter->endElement();
+//        $objWriter->startElement('a:lin');
+//        $objWriter->writeAttribute('ang', CommonDrawing::degreesToAngle((int)$pFill->getRotation()));
+//        $objWriter->writeAttribute('scaled', '0');
+//        $objWriter->endElement();
+//
+//        $objWriter->endElement();
     }
 
     /**
@@ -256,14 +170,14 @@ abstract class AbstractDecoratorWriter extends \PhpOffice\PhpPresentation\Writer
         // fgClr
         $objWriter->startElement('a:fgClr');
 
-        $this->writeColor($objWriter, $pFill->getStartColor());
+        $pFill->getStartColor() && $pFill->getStartColor()->write($objWriter);
 
         $objWriter->endElement();
 
         // bgClr
         $objWriter->startElement('a:bgClr');
 
-        $this->writeColor($objWriter, $pFill->getEndColor());
+        $pFill->getEndColor() && $pFill->getEndColor()->write($objWriter);
 
         $objWriter->endElement();
 

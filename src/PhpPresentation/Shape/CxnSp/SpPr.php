@@ -6,17 +6,16 @@ use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
 use PhpOffice\PhpPresentation\Shape\Geometry\Geometry;
+use PhpOffice\PhpPresentation\Style\EffectLst;
 use PhpOffice\PhpPresentation\Style\Fill;
 
 class SpPr
 {
     public ?Xfrm $xfrm = null;
-
     public ?Geometry $geometry = null;
-
     public ?Fill $fill = null;
-
     public ?Ln $ln = null;
+    public ?EffectLst $effectLst = null;
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
@@ -31,6 +30,7 @@ class SpPr
         $spPr->geometry = Geometry::load($xmlReader, $element);
         $spPr->fill = Fill::load($xmlReader, $element);
         $spPr->ln = Ln::load($xmlReader, $element);
+        $spPr->effectLst = EffectLst::load($xmlReader, $element);
 
         return $spPr;
     }
@@ -43,6 +43,7 @@ class SpPr
         $this->geometry && $this->geometry->write($writer);
         $this->fill && $this->fill->write($writer);
         $this->ln && $this->ln->write($writer);
+        $this->effectLst && $this->effectLst->write($writer);
 
         $writer->endElement();
     }

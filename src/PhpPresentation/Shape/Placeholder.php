@@ -27,9 +27,10 @@ class Placeholder
     public const PH_TYPE_CHART = 'chart';
     public const PH_TYPE_SUBTITLE = 'subTitle';
     public const PH_TYPE_TITLE = 'title';
-    public const PH_TYPE_FOOTER = 'ftr';
-    public const PH_TYPE_DATETIME = 'dt';
-    public const PH_TYPE_SLIDENUM = 'sldNum';
+    public const PH_TYPE_FOOTER = 'ftr'; // idx = 11
+    public const PH_TYPE_DATETIME = 'dt'; // idx = 10
+    public const PH_TYPE_SLIDENUM = 'sldNum'; // idx = 12
+    public const PH_TYPE_PIC = 'pic'; // idx = 2
 
     /**
      * Indicates whether the placeholder should have a customer prompt.

@@ -870,8 +870,7 @@ class Content extends AbstractDecoratorWriter
         }
         // Fill
         switch ($shape->getFill()->getFillType()) {
-            case Fill::FILL_GRADIENT_LINEAR:
-            case Fill::FILL_GRADIENT_PATH:
+            case Fill::FILL_GRADIENT:
                 $objWriter->writeAttribute('draw:fill', 'gradient');
                 $objWriter->writeAttribute('draw:fill-gradient-name', 'gradient_' . $shape->getFill()->getHashCode());
                 break;
@@ -1044,7 +1043,7 @@ class Content extends AbstractDecoratorWriter
                         $objWriter->writeAttribute('draw:fill', 'solid');
                         $objWriter->writeAttribute('draw:fill-color', '#' . $shapeCell->getFill()->getStartColor()->getRGB());
                     }
-                    if (Fill::FILL_GRADIENT_LINEAR == $shapeCell->getFill()->getFillType()) {
+                    if (Fill::FILL_GRADIENT == $shapeCell->getFill()->getFillType()) {
                         $objWriter->writeAttribute('draw:fill', 'gradient');
                         $objWriter->writeAttribute('draw:fill-gradient-name', 'gradient_' . $shapeCell->getFill()->getHashCode());
                     }

@@ -24,6 +24,7 @@ use PhpOffice\PhpPresentation\ComparableInterface;
 use PhpOffice\PhpPresentation\Style\Alignment;
 use PhpOffice\PhpPresentation\Style\Bullet;
 use PhpOffice\PhpPresentation\Style\Font;
+use PhpOffice\PhpPresentation\Shape\RichText\Para\EndParaRPr;
 
 /**
  * \PhpOffice\PhpPresentation\Shape\RichText\Paragraph.
@@ -87,6 +88,8 @@ class Paragraph implements ComparableInterface
      * @var int
      */
     private $hashIndex;
+
+    protected ?EndParaRPr $endParaRPr = null;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText\Paragraph instance.
@@ -391,6 +394,18 @@ class Paragraph implements ComparableInterface
     public function setSpacingAfter(int $spacingAfter): self
     {
         $this->spacingAfter = $spacingAfter;
+
+        return $this;
+    }
+
+    public function getEndParaRPr(): ?EndParaRPr
+    {
+        return $this->endParaRPr;
+    }
+
+    public function setEndParaRPr(?EndParaRPr $endParaRPr): self
+    {
+        $this->endParaRPr = $endParaRPr;
 
         return $this;
     }

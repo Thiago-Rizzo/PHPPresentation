@@ -224,7 +224,9 @@ class PptSlideMasters extends AbstractSlide
 
                 if ($oParagraph->getFont()->getColor() !== null) {
                     $objWriter->startElement('a:solidFill');
-                    $this->writeColor($objWriter, $oParagraph->getFont()->getColor());
+
+                    $oParagraph->getFont()->getColor()->write($objWriter);
+
                     $objWriter->endElement();
                 }
                 $objWriter->endElement();

@@ -21,18 +21,17 @@ declare(strict_types=1);
 namespace PhpOffice\PhpPresentation\Style;
 
 use DOMElement;
-use PhpOffice\Common\Drawing as CommonDrawing;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
 use PhpOffice\PhpPresentation\ComparableInterface;
+use PhpOffice\PhpPresentation\Style\Fill\GradFill;
 
 class Fill implements ComparableInterface
 {
     /* Fill types */
     public const FILL_NONE = 'none';
     public const FILL_SOLID = 'solid';
-    public const FILL_GRADIENT_LINEAR = 'linear';
-    public const FILL_GRADIENT_PATH = 'path';
+    public const FILL_GRADIENT = 'grad';
     public const FILL_PATTERN_DARKDOWN = 'darkDown';
     public const FILL_PATTERN_DARKGRAY = 'darkGray';
     public const FILL_PATTERN_DARKGRID = 'darkGrid';
@@ -255,7 +254,7 @@ class Fill implements ComparableInterface
             } else {
                 $element = $xmlReader->getElement('a:gradFill', $node);
                 if ($element) {
-                    $fill->setFillType(self::FILL_GRADIENT_LINEAR);
+                    $fill->setFillType(self::FILL_GRADIENT);
                 } else {
                     $element = $xmlReader->getElement('a:pattFill', $node);
                     if ($element) {
@@ -273,13 +272,9 @@ class Fill implements ComparableInterface
 
             $fill->setStartColor(SchemeColor::load($xmlReader, $element));
 
-        } elseif ($fill->getFillType() == self::FILL_GRADIENT_LINEAR) {
+        } elseif ($fill->getFillType() == self::FILL_GRADIENT) {
 
-            $elementGradient = $xmlReader->getElements('a:gsLst/a:gs', $element);
-            if ($elementGradient->length == 2) {
-                $fill->setStartColor(SchemeColor::load($xmlReader, $elementGradient->item(0)));
-                $fill->setEndColor(SchemeColor::load($xmlReader, $elementGradient->item(1)));
-            }
+            $fill = GradFill::load($xmlReader, $node);
 
         } elseif ($fill->getFillType() == self::FILL_PATTERN_DARKDOWN) {
 
@@ -309,33 +304,6 @@ class Fill implements ComparableInterface
         if ($this->getFillType() == Fill::FILL_SOLID) {
             $writer->startElement('a:solidFill');
             $this->getStartColor()->write($writer);
-            $writer->endElement();
-
-            return;
-        }
-
-        if ($this->getFillType() == Fill::FILL_GRADIENT_LINEAR || $this->getFillType() == Fill::FILL_GRADIENT_PATH) {
-            $writer->startElement('a:gradFill');
-
-            $writer->startElement('a:gsLst');
-
-            $writer->startElement('a:gs');
-            $writer->writeAttribute('pos', '0');
-            $this->getStartColor()->write($writer);
-            $writer->endElement();
-
-            $writer->startElement('a:gs');
-            $writer->writeAttribute('pos', '100000');
-            $this->getEndColor()->write($writer);
-            $writer->endElement();
-
-            $writer->endElement();
-
-            $writer->startElement('a:lin');
-            $writer->writeAttribute('ang', CommonDrawing::degreesToAngle((int)$this->getRotation()));
-            $writer->writeAttribute('scaled', '0');
-            $writer->endElement();
-
             $writer->endElement();
 
             return;

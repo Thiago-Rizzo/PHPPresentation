@@ -226,7 +226,7 @@ class Color implements ComparableInterface
         $elementAlpha = $xmlReader->getElement('a:alpha', $element);
         if ($elementAlpha instanceof DOMElement && $elementAlpha->hasAttribute('val')) {
             $alpha = $elementAlpha->getAttribute('val') / 1000;
-            $color->setAlpha($alpha);
+            $color->setAlpha((int)$alpha);
         }
 
         return $color;
@@ -238,9 +238,11 @@ class Color implements ComparableInterface
 
         $writer->writeAttribute('val', $this->getRGB());
 
-        $writer->startElement('a:alpha');
-        $writer->writeAttribute('val', $this->getAlpha() * 1000);
-        $writer->endElement();
+        if ($this->getAlpha() !== 100) {
+            $writer->startElement('a:alpha');
+            $writer->writeAttribute('val', $this->getAlpha() * 1000);
+            $writer->endElement();
+        }
 
         $writer->endElement();
     }

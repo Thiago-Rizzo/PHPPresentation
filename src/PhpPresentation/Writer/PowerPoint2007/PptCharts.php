@@ -184,7 +184,7 @@ class PptCharts extends AbstractDecoratorWriter
         }
 
         // Shadow
-        if ($chart->getShadow()->isVisible()) {
+        if ($chart->getShadow() && $chart->getShadow()->isVisible()) {
             // a:effectLst
             $objWriter->startElement('a:effectLst');
 
@@ -196,7 +196,7 @@ class PptCharts extends AbstractDecoratorWriter
             $objWriter->writeAttribute('algn', $chart->getShadow()->getAlignment());
             $objWriter->writeAttribute('rotWithShape', '0');
 
-            $this->writeColor($objWriter, $chart->getShadow()->getColor(), $chart->getShadow()->getAlpha());
+            $chart->getShadow()->getColor() && $chart->getShadow()->getColor()->write($objWriter);
 
             $objWriter->endElement();
 
@@ -451,7 +451,7 @@ class PptCharts extends AbstractDecoratorWriter
         // Font - a:solidFill
         $objWriter->startElement('a:solidFill');
 
-        $this->writeColor($objWriter, $subject->getFont()->getColor());
+        $subject->getFont()->getColor() && $subject->getFont()->getColor()->write($objWriter);
 
         $objWriter->endElement();
 
@@ -614,7 +614,7 @@ class PptCharts extends AbstractDecoratorWriter
         // Font - a:solidFill
         $objWriter->startElement('a:solidFill');
 
-        $this->writeColor($objWriter, $subject->getFont()->getColor());
+        $subject->getFont()->getColor() && $subject->getFont()->getColor()->write($objWriter);
 
         $objWriter->endElement();
 
@@ -902,7 +902,9 @@ class PptCharts extends AbstractDecoratorWriter
 
             // a:solidFill
             $objWriter->startElement('a:solidFill');
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+
+            $series->getFont()->getColor() && $series->getFont()->getColor()->write($objWriter);
+
             // >a:solidFill
             $objWriter->endElement();
             // a:latin
@@ -1107,7 +1109,7 @@ class PptCharts extends AbstractDecoratorWriter
             // Font - a:solidFill
             $objWriter->startElement('a:solidFill');
 
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+            $series->getFont()->getColor() && $series->getFont()->getColor()->write($objWriter);
 
             $objWriter->endElement();
 
@@ -1321,7 +1323,9 @@ class PptCharts extends AbstractDecoratorWriter
 
             // c:dLbls\c:txPr\a:p\a:pPr\a:defRPr\a:solidFill
             $objWriter->startElement('a:solidFill');
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+
+            $series->getFont()->getColor() && $series->getFont()->getColor()->write($objWriter);
+
             $objWriter->endElement();
 
             // c:dLbls\c:txPr\a:p\a:pPr\a:defRPr\a:latin
@@ -1455,7 +1459,7 @@ class PptCharts extends AbstractDecoratorWriter
             // Font - a:solidFill
             $objWriter->startElement('a:solidFill');
 
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+            $series->getFont()->getStartColor() && $series->getFont()->getStartColor()->write($objWriter);
 
             $objWriter->endElement();
 
@@ -1617,7 +1621,7 @@ class PptCharts extends AbstractDecoratorWriter
             // Font - a:solidFill
             $objWriter->startElement('a:solidFill');
 
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+            $series->getFont()->getColor() && $series->getFont()->getColor()->write($objWriter);
 
             $objWriter->endElement();
 
@@ -1768,7 +1772,7 @@ class PptCharts extends AbstractDecoratorWriter
             // Font - a:solidFill
             $objWriter->startElement('a:solidFill');
 
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+            $series->getFont()->getColor() && $series->getFont()->getColor()->write($objWriter);
 
             $objWriter->endElement();
 
@@ -1933,7 +1937,7 @@ class PptCharts extends AbstractDecoratorWriter
             // Font - a:solidFill
             $objWriter->startElement('a:solidFill');
 
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+            $series->getFont()->getColor() && $series->getFont()->getColor()->write($objWriter);
 
             $objWriter->endElement();
 
@@ -2113,7 +2117,7 @@ class PptCharts extends AbstractDecoratorWriter
             // Font - a:solidFill
             $objWriter->startElement('a:solidFill');
 
-            $this->writeColor($objWriter, $series->getFont()->getColor());
+            $series->getFont()->getColor() && $series->getFont()->getColor()->write($objWriter);
 
             $objWriter->endElement();
 
@@ -2399,7 +2403,9 @@ class PptCharts extends AbstractDecoratorWriter
 
             // Font - a:solidFill
             $objWriter->startElement('a:solidFill');
-            $this->writeColor($objWriter, $oAxis->getFont()->getColor());
+
+            $oAxis->getFont()->getColor() && $oAxis->getFont()->getColor()->write($objWriter);
+
             $objWriter->endElement();
 
             // Font - a:latin

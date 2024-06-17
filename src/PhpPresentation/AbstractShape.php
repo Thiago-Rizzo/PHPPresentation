@@ -21,8 +21,8 @@ declare(strict_types=1);
 namespace PhpOffice\PhpPresentation;
 
 use PhpOffice\PhpPresentation\Exception\ShapeContainerAlreadyAssignedException;
+use PhpOffice\PhpPresentation\Shape\CxnSp\NvPr;
 use PhpOffice\PhpPresentation\Shape\Hyperlink;
-use PhpOffice\PhpPresentation\Shape\Placeholder;
 use PhpOffice\PhpPresentation\Style\Border;
 use PhpOffice\PhpPresentation\Style\Fill;
 use PhpOffice\PhpPresentation\Style\Shadow;
@@ -99,11 +99,6 @@ abstract class AbstractShape implements ComparableInterface
     protected $hyperlink;
 
     /**
-     * @var Placeholder|null
-     */
-    protected $placeholder;
-
-    /**
      * Hash index.
      *
      * @var int
@@ -113,6 +108,8 @@ abstract class AbstractShape implements ComparableInterface
     protected string $flipV = '';
 
     protected string $flipH = '';
+
+    protected ?NvPr $nvPr = null;
 
     /**
      * Create a new self.
@@ -416,23 +413,7 @@ abstract class AbstractShape implements ComparableInterface
 
     public function isPlaceholder(): bool
     {
-        return !is_null($this->placeholder);
-    }
-
-    public function getPlaceholder(): ?Placeholder
-    {
-        if (!$this->isPlaceholder()) {
-            return null;
-        }
-
-        return $this->placeholder;
-    }
-
-    public function setPlaceHolder(Placeholder $placeholder): self
-    {
-        $this->placeholder = $placeholder;
-
-        return $this;
+        return (bool)$this->getNvPr()->ph;
     }
 
     public function getFlipH(): string
@@ -453,5 +434,17 @@ abstract class AbstractShape implements ComparableInterface
     public function setFlipV(string $flipV = ''): void
     {
         $this->flipV = $flipV;
+    }
+
+    public function getNvPr(): ?NvPr
+    {
+        return $this->nvPr;
+    }
+
+    public function setNvPr(?NvPr $nvPr): self
+    {
+        $this->nvPr = $nvPr;
+
+        return $this;
     }
 }

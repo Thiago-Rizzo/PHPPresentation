@@ -183,7 +183,7 @@ class Styles extends AbstractDecoratorWriter
     protected function writeRichTextStyle(XMLWriter $objWriter, RichText $shape): void
     {
         $oFill = $shape->getFill();
-        if (Fill::FILL_GRADIENT_LINEAR == $oFill->getFillType() || Fill::FILL_GRADIENT_PATH == $oFill->getFillType()) {
+        if (Fill::FILL_GRADIENT == $oFill->getFillType()) {
             if (!in_array($oFill->getHashCode(), $this->arrayGradient)) {
                 $this->writeGradientFill($objWriter, $oFill);
             }
@@ -269,7 +269,7 @@ class Styles extends AbstractDecoratorWriter
     {
         foreach ($shape->getRows() as $row) {
             foreach ($row->getCells() as $cell) {
-                if (Fill::FILL_GRADIENT_LINEAR == $cell->getFill()->getFillType()) {
+                if (Fill::FILL_GRADIENT == $cell->getFill()->getFillType()) {
                     if (!in_array($cell->getFill()->getHashCode(), $this->arrayGradient)) {
                         $this->writeGradientFill($objWriter, $cell->getFill());
                     }

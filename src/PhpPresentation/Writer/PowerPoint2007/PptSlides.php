@@ -400,7 +400,7 @@ class PptSlides extends AbstractSlide
                 // a:solidFill
                 $objWriter->startElement('a:solidFill');
 
-                $this->writeColor($objWriter, $oBackground->getColor());
+                $oBackground->getColor() && $oBackground->getColor()->write($objWriter);
 
                 // > a:solidFill
                 $objWriter->endElement();

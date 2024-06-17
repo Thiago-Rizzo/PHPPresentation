@@ -18,6 +18,7 @@ class Ln
     public ?Miter $miter = null;
     public ?HeadEnd $headEnd = null;
     public ?TailEnd $tailEnd = null;
+    public ?Round $round = null;
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
@@ -37,6 +38,7 @@ class Ln
         $ln->miter = Miter::load($xmlReader, $element);
         $ln->headEnd = HeadEnd::load($xmlReader, $element);
         $ln->tailEnd = TailEnd::load($xmlReader, $element);
+        $ln->round = Round::load($xmlReader, $element);
 
         return $ln;
     }
@@ -54,6 +56,7 @@ class Ln
         $this->miter && $this->miter->write($writer);
         $this->headEnd && $this->headEnd->write($writer);
         $this->tailEnd && $this->tailEnd->write($writer);
+        $this->round && $this->round->write($writer);
 
         $writer->endElement();
     }
