@@ -20,11 +20,9 @@ declare(strict_types=1);
 
 namespace PhpOffice\PhpPresentation\Slide;
 
-use PhpOffice\PhpPresentation\ComparableInterface;
-use PhpOffice\PhpPresentation\ShapeContainerInterface;
 use PhpOffice\PhpPresentation\Style\ColorMap;
 
-class SlideLayout extends AbstractSlide implements ComparableInterface, ShapeContainerInterface
+class SlideLayout extends AbstractSlide
 {
     /**
      * @var SlideMaster

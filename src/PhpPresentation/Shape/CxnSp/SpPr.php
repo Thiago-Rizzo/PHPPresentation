@@ -35,11 +35,11 @@ class SpPr
         return $spPr;
     }
 
-    public function write(XMLWriter $writer, $shape = null): void
+    public function write(XMLWriter $writer): void
     {
         $writer->startElement('p:spPr');
 
-        $this->xfrm && $this->xfrm->write($writer, $shape);
+        $this->xfrm && $this->xfrm->write($writer);
         $this->geometry && $this->geometry->write($writer);
         $this->fill && $this->fill->write($writer);
         $this->ln && $this->ln->write($writer);

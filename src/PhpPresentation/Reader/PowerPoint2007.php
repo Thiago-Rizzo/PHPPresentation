@@ -28,7 +28,6 @@ use PhpOffice\Common\Drawing as CommonDrawing;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\PhpPresentation\DocumentLayout;
 use PhpOffice\PhpPresentation\DocumentProperties;
-use PhpOffice\PhpPresentation\Exception\FeatureNotImplementedException;
 use PhpOffice\PhpPresentation\Exception\FileNotFoundException;
 use PhpOffice\PhpPresentation\Exception\InvalidFileFormatException;
 use PhpOffice\PhpPresentation\PhpPresentation;
@@ -844,19 +843,14 @@ class PowerPoint2007 implements ReaderInterface
 
     protected function loadShapeRichText(XMLReader $xmlReader, DOMElement $node, $oSlide): void
     {
-        if (!$xmlReader->elementExists('p:txBody/a:p', $node) || !$oSlide instanceof AbstractSlide) {
+        if (!$oSlide instanceof AbstractSlide) {
             return;
         }
         // Core
         $oShape = $oSlide->createRichTextShape();
         $oShape->setParagraphs([]);
 
-        $fileRels = $oSlide->getRelsIndex();
-
-        // Variables
-        if ($oSlide instanceof AbstractSlide) {
-            $this->fileRels = $oSlide->getRelsIndex();
-        }
+        $this->fileRels = $oSlide->getRelsIndex();
 
         $oElement = $xmlReader->getElement('p:nvSpPr', $node);
         if ($oElement instanceof DOMElement) {
@@ -866,12 +860,12 @@ class PowerPoint2007 implements ReaderInterface
             if ($oElement instanceof DOMElement) {
                 // Hyperlink
                 $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElement);
-                if (is_object($oElementHlinkClick)) {
+                if ($oElementHlinkClick instanceof DOMElement) {
                     if ($oElementHlinkClick->hasAttribute('tooltip')) {
                         $oShape->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
                     }
-                    if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
-                        $oShape->getHyperlink()->setUrl($this->arrayRels[$fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+                    if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
+                        $oShape->getHyperlink()->setUrl($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
                     }
                 }
             }
@@ -1325,7 +1319,6 @@ class PowerPoint2007 implements ReaderInterface
      * @param AbstractSlide|Note $oSlide
      * @param DOMNodeList<DOMNode> $oElements
      *
-     * @throws FeatureNotImplementedException
      *
      * @internal param $baseFile
      */

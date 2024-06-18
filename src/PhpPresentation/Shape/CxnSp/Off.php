@@ -32,12 +32,12 @@ class Off
         return $off;
     }
 
-    public function write(XMLWriter $writer, $shape = null): void
+    public function write(XMLWriter $writer): void
     {
         $writer->startElement('a:off');
 
-        $this->x ??= $shape->getOffsetX() ?? 0;
-        $this->y ??= $shape->getOffsetY() ?? 0;
+        $this->x ??= 0;
+        $this->y ??= 0;
 
         $writer->writeAttribute('x', CommonDrawing::pixelsToEmu((float)$this->x));
         $writer->writeAttribute('y', CommonDrawing::pixelsToEmu((float)$this->y));

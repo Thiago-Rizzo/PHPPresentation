@@ -196,7 +196,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         $shape->getFill() && $shape->getFill()->write($objWriter);
 
-        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter);
 
         // p:style
         $this->writeStyle($objWriter, $shape->getStyle());
@@ -695,7 +695,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         $objWriter->endElement();
 
-        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter);
 
         $objWriter->endElement();
     }
@@ -1061,7 +1061,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         // p:sp\p:nvSpPr\
         $objWriter->endElement();
 
-        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter);
 
         // p:sp\p:txBody
         $objWriter->startElement('p:txBody');
@@ -1233,7 +1233,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             $shape->getBlipFill()->write($objWriter);
         }
 
-        $shape->getSpPr() && $shape->getSpPr()->write($objWriter, $shape);
+        $shape->getSpPr() && $shape->getSpPr()->write($objWriter);
 
         $objWriter->endElement();
     }
