@@ -2,17 +2,17 @@
 
 namespace PhpOffice\PhpPresentation\Style\Color;
 
-use PhpOffice\PhpPresentation\Style\SchemeColor;
+use PhpOffice\PhpPresentation\Style\Color;
 
 abstract class Ref
 {
     protected string $idx = '';
-    protected ?SchemeColor $schemeClr = null;
+    protected ?Color $color = null;
 
-    public function __construct(string $idx = '', ?SchemeColor $schemeClr = null)
+    public function __construct(string $idx = '', ?Color $color = null)
     {
         $this->idx = $idx;
-        $this->schemeClr = $schemeClr;
+        $this->color = $color;
     }
 
     public function getIdx(): string
@@ -25,13 +25,13 @@ abstract class Ref
         $this->idx = $idx;
     }
 
-    public function getSchemeClr(): ?SchemeColor
+    public function getColor(): ?Color
     {
-        return $this->schemeClr;
+        return $this->color;
     }
 
-    public function setSchemeClr(?SchemeColor $schemeClr): void
+    public function setColor(?Color $color): void
     {
-        $this->schemeClr = $schemeClr;
+        $this->color = $color;
     }
 }

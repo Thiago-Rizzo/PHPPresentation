@@ -637,7 +637,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         $objWriter->writeAttribute('idx', $ref->getIdx());
 
-        $ref->getSchemeClr() && $ref->getSchemeClr()->write($objWriter);
+        $ref->getColor() && $ref->getColor()->write($objWriter);
     }
 
     protected function writeStyle(XMLWriter $objWriter, ?Style $style): void

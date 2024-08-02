@@ -5,11 +5,12 @@ namespace PhpOffice\PhpPresentation\Style\Fill;
 use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
+use PhpOffice\PhpPresentation\Style\Color;
 use PhpOffice\PhpPresentation\Style\SchemeColor;
 
 class Gs
 {
-    public ?SchemeColor $schemeClr = null;
+    public ?Color $color = null;
     public string $pos = '';
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
@@ -28,7 +29,7 @@ class Gs
 
         $gs->pos = $node->getAttribute('pos');
 
-        $gs->schemeClr = SchemeColor::load($xmlReader, $node);
+        $gs->color = SchemeColor::load($xmlReader, $node);
 
         return $gs;
     }
@@ -39,7 +40,7 @@ class Gs
 
         $this->pos !== '' && $writer->writeAttribute('pos', $this->pos);
 
-        $this->schemeClr && $this->schemeClr->write($writer);
+        $this->color && $this->color->write($writer);
 
         $writer->endElement();
     }

@@ -20,16 +20,14 @@ declare(strict_types=1);
 
 namespace PhpOffice\PhpPresentation\Slide;
 
-use PhpOffice\PhpPresentation\ComparableInterface;
 use PhpOffice\PhpPresentation\PhpPresentation;
-use PhpOffice\PhpPresentation\ShapeContainerInterface;
 use PhpOffice\PhpPresentation\Slide\Background\Color as BackgroundColor;
 use PhpOffice\PhpPresentation\Style\Color;
 use PhpOffice\PhpPresentation\Style\ColorMap;
 use PhpOffice\PhpPresentation\Style\SchemeColor;
 use PhpOffice\PhpPresentation\Style\TextStyle;
 
-class SlideMaster extends AbstractSlide implements ComparableInterface, ShapeContainerInterface
+class SlideMaster extends AbstractSlide
 {
     /**
      * Collection of Slide objects.
