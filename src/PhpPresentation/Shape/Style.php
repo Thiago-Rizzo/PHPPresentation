@@ -2,65 +2,47 @@
 
 namespace PhpOffice\PhpPresentation\Shape;
 
-use PhpOffice\PhpPresentation\Style\Color;
+use DOMElement;
+use PhpOffice\Common\XMLReader;
+use PhpOffice\Common\XMLWriter;
+use PhpOffice\PhpPresentation\Style\Color\EffectRef;
+use PhpOffice\PhpPresentation\Style\Color\FillRef;
+use PhpOffice\PhpPresentation\Style\Color\FontRef;
+use PhpOffice\PhpPresentation\Style\Color\LnRef;
 
 class Style
 {
-    protected ?Color\LnRef $lnRef;
-    protected ?Color\FillRef $fillRef;
-    protected ?Color\EffectRef $effectRef;
-    protected ?Color\FontRef $fontRef;
+    protected ?LnRef $lnRef = null;
+    protected ?FillRef $fillRef = null;
+    protected ?EffectRef $effectRef = null;
+    protected ?FontRef $fontRef = null;
 
-    public function __construct(
-        $lnRef = null,
-        $fillRef = null,
-        $effectRef = null,
-        $fontRef = null
-    )
+    public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
-        $this->lnRef = $lnRef;
-        $this->fillRef = $fillRef;
-        $this->effectRef = $effectRef;
-        $this->fontRef = $fontRef;
+        $dom = $xmlReader->getElement('p:style', $node);
+        if (!$dom) {
+            return null;
+        }
+
+        $oStyle = new self();
+
+        $oStyle->lnRef = LnRef::load($xmlReader, $dom);
+        $oStyle->fillRef = FillRef::load($xmlReader, $dom);
+        $oStyle->effectRef = EffectRef::load($xmlReader, $dom);
+        $oStyle->fontRef = FontRef::load($xmlReader, $dom);
+
+        return $oStyle;
     }
 
-    public function getLnRef(): ?Color\LnRef
+    public function write(XMLWriter $writer): void
     {
-        return $this->lnRef;
-    }
+        $writer->startElement('p:style');
 
-    public function setLnRef(?Color\LnRef $lnRef): void
-    {
-        $this->lnRef = $lnRef;
-    }
+        $this->lnRef !== null && $this->lnRef->write($writer);
+        $this->fillRef !== null && $this->fillRef->write($writer);
+        $this->effectRef !== null && $this->effectRef->write($writer);
+        $this->fontRef !== null && $this->fontRef->write($writer);
 
-    public function getFillRef(): ?Color\FillRef
-    {
-        return $this->fillRef;
-    }
-
-    public function setFillRef(?Color\FillRef $fillRef): void
-    {
-        $this->fillRef = $fillRef;
-    }
-
-    public function getEffectRef(): ?Color\EffectRef
-    {
-        return $this->effectRef;
-    }
-
-    public function setEffectRef(?Color\EffectRef $effectRef): void
-    {
-        $this->effectRef = $effectRef;
-    }
-
-    public function getFontRef(): ?Color\FontRef
-    {
-        return $this->fontRef;
-    }
-
-    public function setFontRef(?Color\FontRef $fontRef): void
-    {
-        $this->fontRef = $fontRef;
+        $writer->endElement();
     }
 }

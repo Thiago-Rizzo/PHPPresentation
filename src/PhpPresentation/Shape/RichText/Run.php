@@ -25,14 +25,16 @@ use PhpOffice\PhpPresentation\Style\Font;
 /**
  * Rich text run.
  */
-class Run extends TextElement implements TextElementInterface
+class Run extends TextElement
 {
     /**
      * Font.
      *
-     * @var \PhpOffice\PhpPresentation\Style\Font
+     * @var Font
      */
     private $font;
+
+    public ?RPr $rPr = null;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText\Run instance.
@@ -42,7 +44,7 @@ class Run extends TextElement implements TextElementInterface
     public function __construct($pText = '')
     {
         // Initialise variables
-        $this->setText($pText);
+        parent::__construct($pText);
         $this->font = new Font();
     }
 

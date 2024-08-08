@@ -43,7 +43,6 @@ use PhpOffice\PhpPresentation\Shape\RichText\BreakElement;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
 use PhpOffice\PhpPresentation\Shape\RichText\Run;
 use PhpOffice\PhpPresentation\Shape\RichText\TextElement;
-use PhpOffice\PhpPresentation\Shape\Style;
 use PhpOffice\PhpPresentation\Shape\Table as ShapeTable;
 use PhpOffice\PhpPresentation\Slide;
 use PhpOffice\PhpPresentation\Slide\AbstractSlide as AbstractSlideAlias;
@@ -52,8 +51,6 @@ use PhpOffice\PhpPresentation\Style\Alignment;
 use PhpOffice\PhpPresentation\Style\Border;
 use PhpOffice\PhpPresentation\Style\Bullet;
 use PhpOffice\PhpPresentation\Style\Color;
-use PhpOffice\PhpPresentation\Style\Color\Ref;
-use PhpOffice\PhpPresentation\Style\Shadow;
 
 abstract class AbstractSlide extends AbstractDecoratorWriter
 {
@@ -198,8 +195,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         $shape->getSpPr() && $shape->getSpPr()->write($objWriter);
 
-        // p:style
-        $this->writeStyle($objWriter, $shape->getStyle());
+        $shape->getStyle() && $shape->getStyle()->write($objWriter);
         // p:txBody
         $objWriter->startElement('p:txBody');
         // a:bodyPr
@@ -253,17 +249,39 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             (Placeholder::PH_TYPE_SLIDENUM == $shape->getNvPr()->ph->type ||
                 Placeholder::PH_TYPE_DATETIME == $shape->getNvPr()->ph->type)
         ) {
-            $objWriter->startElement('a:p');
-            $objWriter->startElement('a:fld');
-            $objWriter->writeAttribute('id', $this->getGUID());
-            $objWriter->writeAttribute('type', (
-            Placeholder::PH_TYPE_SLIDENUM == $shape->getNvPr()->ph->type ? 'slidenum' : 'datetime'
-            ));
-            $objWriter->writeElement('a:t', (
-            Placeholder::PH_TYPE_SLIDENUM == $shape->getNvPr()->ph->type ? '<nr.>' : '03-04-05'
-            ));
-            $objWriter->endElement();
-            $objWriter->endElement();
+            /** @var Paragraph $paragraph */
+            foreach ($shape->getParagraphs() as $paragraph) {
+                $objWriter->startElement('a:p');
+
+                $objWriter->startElement('a:fld');
+                $objWriter->writeAttribute('id', $this->getGUID());
+                $objWriter->writeAttribute(
+                    'type',
+                    Placeholder::PH_TYPE_SLIDENUM == $shape->getNvPr()->ph->type ? 'slidenum' : 'datetime'
+                );
+
+                $elements = $paragraph->getRichTextElements();
+                foreach ($elements as $element) {
+                    if ($element instanceof BreakElement) {
+                        $objWriter->writeElement('a:br', null);
+                    }
+
+                    if ($element instanceof Run) {
+                        $element->rPr && $element->rPr->write($objWriter);
+                    }
+                }
+
+                $objWriter->writeElement(
+                    'a:t',
+                    Placeholder::PH_TYPE_SLIDENUM == $shape->getNvPr()->ph->type ? '<nr.>' : '03-04-05',
+                );
+
+                $objWriter->endElement();
+
+                $paragraph->getEndParaRPr() && $paragraph->getEndParaRPr()->write($objWriter);
+
+                $objWriter->endElement();
+            }
         } else {
             // Write paragraphs
             $this->writeParagraphs($objWriter, $shape->getParagraphs());
@@ -559,57 +577,17 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
                 if ($element instanceof BreakElement) {
                     // a:br
                     $objWriter->writeElement('a:br', null);
-                } elseif ($element instanceof Run || $element instanceof TextElement) {
+                }
+
+                if ($element instanceof TextElement) {
                     // a:r
                     $objWriter->startElement('a:r');
 
                     // a:rPr
                     if ($element instanceof Run && !$bIsPlaceholder) {
-                        // a:rPr
-                        $objWriter->startElement('a:rPr');
+                        $element->rPr && $element->rPr->write($objWriter);
 
-                        // Lang
-                        $objWriter->writeAttribute('lang', ($element->getLanguage() ? $element->getLanguage() : 'en-US'));
-                        $objWriter->writeAttribute('sz', ($element->getFont()->getSize() * 100));
-                        $objWriter->writeAttributeIf($element->getFont()->isBold(), 'b', '1');
-                        $objWriter->writeAttributeIf($element->getFont()->isItalic(), 'i', '1');
-                        $objWriter->writeAttribute('u', $element->getFont()->getUnderline());
-                        $objWriter->writeAttributeIf($element->getFont()->isStrikethrough(), 'strike', 'sngStrike');
-                        $objWriter->writeAttribute('spc', $element->getFont()->getCharacterSpacing());
-                        $objWriter->writeAttributeIf($element->getFont()->isSuperScript(), 'baseline', '300000');
-                        $objWriter->writeAttributeIf($element->getFont()->isSubScript(), 'baseline', '-250000');
-
-                        // Color - a:solidFill
-                        $objWriter->startElement('a:solidFill');
-
-                        $element->getFont()->getColor() && $element->getFont()->getColor()->write($objWriter);
-
-                        $objWriter->endElement();
-
-                        // Font
-                        // - a:latin
-                        // - a:ea
-                        // - a:cs
-                        $objWriter->startElement('a:latin');
-                        $objWriter->writeAttribute('typeface', $element->getFont()->getName());
-                        $objWriter->endElement();
-
-                        $objWriter->startElement('a:ea');
-                        $objWriter->writeAttribute('typeface', $element->getFont()->getName());
-                        $objWriter->endElement();
-
-                        $objWriter->startElement('a:cs');
-                        $objWriter->writeAttribute('typeface', $element->getFont()->getName());
-                        $objWriter->endElement();
-
-                        $objWriter->startElement('a:sym');
-                        $objWriter->writeAttribute('typeface', $element->getFont()->getName());
-                        $objWriter->endElement();
-
-                        // a:hlinkClick
-                        $this->writeHyperlink($objWriter, $element);
-
-                        $objWriter->endElement();
+//                        $this->writeHyperlink($objWriter, $element);
                     }
 
                     // t
@@ -621,55 +599,10 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
                 }
             }
 
-            if ($paragraph->getEndParaRPr()) {
-                $paragraph->getEndParaRPr()->write($objWriter);
-            }
+            $paragraph->getEndParaRPr() && $paragraph->getEndParaRPr()->write($objWriter);
 
             $objWriter->endElement();
         }
-    }
-
-    protected function buildRef(XMLWriter $objWriter, ?Ref $ref): void
-    {
-        if (null === $ref) {
-            return;
-        }
-
-        $objWriter->writeAttribute('idx', $ref->getIdx());
-
-        $ref->getColor() && $ref->getColor()->write($objWriter);
-    }
-
-    protected function writeStyle(XMLWriter $objWriter, ?Style $style): void
-    {
-        if (null === $style) {
-            return;
-        }
-
-        $objWriter->startElement('p:style');
-
-        if ($style->getLnRef() != null && $style->getLnRef()->getIdx() != '') {
-            $objWriter->startElement('a:lnRef');
-            $this->buildRef($objWriter, $style->getLnRef());
-            $objWriter->endElement();
-        }
-        if ($style->getFillRef() != null && $style->getFillRef()->getIdx() != '') {
-            $objWriter->startElement('a:fillRef');
-            $this->buildRef($objWriter, $style->getFillRef());
-            $objWriter->endElement();
-        }
-        if ($style->getEffectRef() != null && $style->getEffectRef()->getIdx() != '') {
-            $objWriter->startElement('a:effectRef');
-            $this->buildRef($objWriter, $style->getEffectRef());
-            $objWriter->endElement();
-        }
-        if ($style->getFontRef() != null && $style->getFontRef()->getIdx() != '') {
-            $objWriter->startElement('a:fontRef');
-            $this->buildRef($objWriter, $style->getFontRef());
-            $objWriter->endElement();
-        }
-
-        $objWriter->endElement();
     }
 
     /**
@@ -1305,10 +1238,7 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
             $objWriter->startElement('p:bgPr');
             // a:solidFill
             $objWriter->startElement('a:solidFill');
-            // a:srgbClr
-            $objWriter->startElement('a:srgbClr');
-            $objWriter->writeAttribute('val', $oBackground->getColor()->getRGB());
-            $objWriter->endElement();
+            $oBackground->getColor() && $oBackground->getColor()->write($objWriter);
             // > a:solidFill
             $objWriter->endElement();
 

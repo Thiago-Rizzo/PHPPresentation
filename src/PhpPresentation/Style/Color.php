@@ -212,6 +212,32 @@ class Color implements ComparableInterface
         return $this;
     }
 
+    /**
+     * @param XMLReader $xmlReader
+     * @param DOMElement $node
+     *
+     * @return Color|null
+     */
+    public static function identify(XMLReader $xmlReader, DOMElement $node): ?self
+    {
+        $element = $xmlReader->getElement('a:srgbClr', $node);
+        if ($element) {
+            return self::load($xmlReader, $node);
+        }
+
+        $element = $xmlReader->getElement('a:scrgbClr', $node);
+        if ($element) {
+            return ScrgbColor::load($xmlReader, $node);
+        }
+
+        $element = $xmlReader->getElement('a:schemeClr', $node);
+        if ($element) {
+            return SchemeColor::load($xmlReader, $node);
+        }
+
+        return null;
+    }
+
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
         $element = $xmlReader->getElement('a:srgbClr', $node);

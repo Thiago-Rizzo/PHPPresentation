@@ -723,7 +723,7 @@ class RichText extends AbstractShape
      * @param Style|null $style
      * @return RichText
      */
-    public function setStyle(?Style $style): self
+    public function setStyle(?Style $style = null): self
     {
         $this->style = $style;
 

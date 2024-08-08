@@ -53,7 +53,6 @@ use PhpOffice\PhpPresentation\Style\Borders;
 use PhpOffice\PhpPresentation\Style\Bullet;
 use PhpOffice\PhpPresentation\Style\Color;
 use PhpOffice\PhpPresentation\Style\Fill;
-use PhpOffice\PhpPresentation\Style\Font;
 use PhpOffice\PhpPresentation\Style\SchemeColor;
 use PhpOffice\PhpPresentation\Style\TextStyle;
 use ZipArchive;
@@ -421,7 +420,7 @@ class PowerPoint2007 implements ReaderInterface
             if ($oElement instanceof DOMElement) {
                 $oElementColor = $xmlReader->getElement('a:solidFill', $oElement);
                 if ($oElementColor instanceof DOMElement) {
-                    $oColor = SchemeColor::load($xmlReader, $oElementColor);
+                    $oColor = Color::identify($xmlReader, $oElementColor);
 
                     if ($oColor !== null) {
                         // Background
@@ -567,7 +566,7 @@ class PowerPoint2007 implements ReaderInterface
                     }
                     $oElementSchemeColor = $xmlReader->getElement('a:defRPr/a:solidFill', $oElementLvl);
                     if ($oElementSchemeColor instanceof DOMElement) {
-                        $oColor = SchemeColor::load($xmlReader, $oElementSchemeColor);
+                        $oColor = Color::identify($xmlReader, $oElementSchemeColor);
 
                         if ($oColor !== null) {
                             $oRTParagraph->getFont()->setColor($oColor);
@@ -692,7 +691,7 @@ class PowerPoint2007 implements ReaderInterface
         // Background color
         $oElementColor = $xmlReader->getElement('p:bgPr/a:solidFill', $oElement);
         if ($oElementColor instanceof DOMElement) {
-            $oColor = SchemeColor::load($xmlReader, $oElementColor);
+            $oColor = Color::identify($xmlReader, $oElementColor);
 
             if ($oColor !== null) {
                 if ($oColor instanceof SchemeColor) {
@@ -710,7 +709,7 @@ class PowerPoint2007 implements ReaderInterface
         // Background scheme color
         $oElementSchemeColor = $xmlReader->getElement('p:bgRef', $oElement);
         if ($oElementSchemeColor instanceof DOMElement) {
-            $oColor = SchemeColor::load($xmlReader, $oElementSchemeColor);
+            $oColor = Color::identify($xmlReader, $oElementSchemeColor);
 
             if ($oColor !== null) {
                 if ($oColor instanceof SchemeColor) {
@@ -880,10 +879,7 @@ class PowerPoint2007 implements ReaderInterface
             }
         }
 
-        $oElement = $xmlReader->getElement('p:style', $node);
-        if ($oElement instanceof DOMElement) {
-            $this->loadStyle($xmlReader, $oElement, $oShape);
-        }
+        $oShape->setStyle(Style::load($xmlReader, $node));
 
         if (count($oShape->getParagraphs()) > 0) {
             $oShape->setActiveParagraph(0);
@@ -1032,54 +1028,6 @@ class PowerPoint2007 implements ReaderInterface
     /**
      * @param Cell|RichText $oShape
      */
-    protected function loadStyle(XMLReader $xmlReader, DOMElement $oElement, $oShape): void
-    {
-        // Core
-        $oStyle = new Style();
-
-        $oSubElement = $xmlReader->getElement('a:lnRef', $oElement);
-        if ($oSubElement instanceof DOMElement) {
-            $oStyle->setLnRef(new Color\LnRef());
-
-            $oStyle->getLnRef()->setIdx($oSubElement->getAttribute('idx'));
-
-            $oColor = SchemeColor::load($xmlReader, $oSubElement);
-            $oStyle->getLnRef()->setColor($oColor);
-        }
-
-        $oSubElement = $xmlReader->getElement('a:fillRef', $oElement);
-        if ($oSubElement instanceof DOMElement) {
-            $oStyle->setFillRef(new Color\FillRef());
-            $oStyle->getFillRef()->setIdx($oSubElement->getAttribute('idx'));
-
-            $oColor = SchemeColor::load($xmlReader, $oSubElement);
-            $oStyle->getFillRef()->setColor($oColor);
-        }
-
-        $oSubElement = $xmlReader->getElement('a:effectRef', $oElement);
-        if ($oSubElement instanceof DOMElement) {
-            $oStyle->setEffectRef(new Color\EffectRef());
-            $oStyle->getEffectRef()->setIdx($oSubElement->getAttribute('idx'));
-
-            $oColor = SchemeColor::load($xmlReader, $oSubElement);
-            $oStyle->getEffectRef()->setColor($oColor);
-        }
-
-        $oSubElement = $xmlReader->getElement('a:fontRef', $oElement);
-        if ($oSubElement instanceof DOMElement) {
-            $oStyle->setFontRef(new Color\FontRef());
-            $oStyle->getFontRef()->setIdx($oSubElement->getAttribute('idx'));
-
-            $oColor = SchemeColor::load($xmlReader, $oSubElement);
-            $oStyle->getFontRef()->setColor($oColor);
-        }
-
-        $oShape->setStyle($oStyle);
-    }
-
-    /**
-     * @param Cell|RichText $oShape
-     */
     protected function loadParagraph(XMLReader $xmlReader, DOMElement $oElement, $oShape): void
     {
         // Core
@@ -1156,97 +1104,107 @@ class PowerPoint2007 implements ReaderInterface
             }
             $oElementBuClr = $xmlReader->getElement('a:buClr', $oSubElement);
             if ($oElementBuClr instanceof DOMElement) {
-                $oColor = SchemeColor::load($xmlReader, $oElementBuClr);
+                $oColor = Color::identify($xmlReader, $oElementBuClr);
                 if ($oColor !== null) {
                     $oParagraph->getBulletStyle()->setBulletColor($oColor);
                 }
             }
         }
-        $arraySubElements = $xmlReader->getElements('(a:r|a:br)', $oElement);
+        $arraySubElements = $xmlReader->getElements('(a:r|a:br|a:fld)', $oElement);
         foreach ($arraySubElements as $oSubElement) {
             if (!($oSubElement instanceof DOMElement)) {
                 continue;
             }
-            if ('a:br' == $oSubElement->tagName) {
+            if ('a:br' === $oSubElement->tagName) {
                 $oParagraph->createBreak();
             }
-            if ('a:r' == $oSubElement->tagName) {
-                $oElementrPr = $xmlReader->getElement('a:rPr', $oSubElement);
-                if (is_object($oElementrPr)) {
-                    $oText = $oParagraph->createTextRun();
 
-                    if ($oElementrPr->hasAttribute('b')) {
-                        $att = $oElementrPr->getAttribute('b');
-                        $oText->getFont()->setBold('true' == $att || '1' == $att);
-                    }
-                    if ($oElementrPr->hasAttribute('i')) {
-                        $att = $oElementrPr->getAttribute('i');
-                        $oText->getFont()->setItalic('true' == $att || '1' == $att);
-                    }
-                    if ($oElementrPr->hasAttribute('strike')) {
-                        $oText->getFont()->setStrikethrough(!('noStrike' == $oElementrPr->getAttribute('strike')));
-                    }
-                    if ($oElementrPr->hasAttribute('sz')) {
-                        $oText->getFont()->setSize((int)($oElementrPr->getAttribute('sz') / 100));
-                    } else {
-                        foreach ($this->oPhpPresentation->getAllMasterSlides() as $masterSlide) {
-                            foreach ($masterSlide->getTextStyles()->getBodyStyle() as $bodyStyle) {
-                                if ($bodyStyle->getFont()->getSize() > 0) {
-                                    $oText->getFont()->setSize($bodyStyle->getFont()->getSize());
-                                }
-                            }
-                        }
-                    }
-                    if ($oElementrPr->hasAttribute('u')) {
-                        $oText->getFont()->setUnderline($oElementrPr->getAttribute('u'));
-                    }
-                    // Color
-                    $oElementSrgbClr = $xmlReader->getElement('a:solidFill', $oElementrPr);
-                    if ($oElementSrgbClr instanceof DOMElement) {
-                        $oColor = SchemeColor::load($xmlReader, $oElementSrgbClr);
-                        if ($oColor !== null) {
-                            $oText->getFont()->setColor($oColor);
-                        }
-                    }
+            $oText = $oParagraph->createTextRun();
 
-                    // Hyperlink
-                    $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElementrPr);
-                    if (is_object($oElementHlinkClick)) {
-                        if ($oElementHlinkClick->hasAttribute('tooltip')) {
-                            $oText->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
-                        }
-                        if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
-                            $oText->getHyperlink()->setUrl($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
-                        }
-                    }
-                    // Font
-                    $oElementFontFormat = null;
-                    $oElementFontFormatLatin = $xmlReader->getElement('a:latin', $oElementrPr);
-                    if (is_object($oElementFontFormatLatin)) {
-                        $oText->getFont()->setFormat(Font::FORMAT_LATIN);
-                        $oElementFontFormat = $oElementFontFormatLatin;
-                    }
-                    $oElementFontFormatEastAsian = $xmlReader->getElement('a:ea', $oElementrPr);
-                    if (is_object($oElementFontFormatEastAsian)) {
-                        $oText->getFont()->setFormat(Font::FORMAT_EAST_ASIAN);
-                        $oElementFontFormat = $oElementFontFormatEastAsian;
-                    }
-                    $oElementFontFormatComplexScript = $xmlReader->getElement('a:cs', $oElementrPr);
-                    if (is_object($oElementFontFormatComplexScript)) {
-                        $oText->getFont()->setFormat(Font::FORMAT_COMPLEX_SCRIPT);
-                        $oElementFontFormat = $oElementFontFormatComplexScript;
-                    }
-                    if (is_object($oElementFontFormat) && $oElementFontFormat->hasAttribute('typeface')) {
-                        $oText->getFont()->setName($oElementFontFormat->getAttribute('typeface'));
-                    }
+            $oText->rPr = RichText\RPr::load($xmlReader, $oSubElement);
 
-                    //} else {
-                    // $oText = $oParagraph->createText();
+            $rid = $oText->rPr->hlinkClick->id ?? null;
 
-                    $oSubSubElement = $xmlReader->getElement('a:t', $oSubElement);
-                    $oText->setText($oSubSubElement->nodeValue);
-                }
+            if ($rid && isset($this->arrayRels[$this->fileRels][$rid]['Target'])) {
+                $oText->rPr->hlinkClick->action = $this->arrayRels[$this->fileRels][$rid]['Target'];
             }
+
+//                $oElementrPr = $xmlReader->getElement('a:rPr', $oSubElement);
+//                if (is_object($oElementrPr)) {
+//
+//                    if ($oElementrPr->hasAttribute('b')) {
+//                        $att = $oElementrPr->getAttribute('b');
+//                        $oText->getFont()->setBold('true' == $att || '1' == $att);
+//                    }
+//                    if ($oElementrPr->hasAttribute('i')) {
+//                        $att = $oElementrPr->getAttribute('i');
+//                        $oText->getFont()->setItalic('true' == $att || '1' == $att);
+//                    }
+//                    if ($oElementrPr->hasAttribute('strike')) {
+//                        $oText->getFont()->setStrikethrough(!('noStrike' == $oElementrPr->getAttribute('strike')));
+//                    }
+//                    if ($oElementrPr->hasAttribute('sz')) {
+//                        $oText->getFont()->setSize((int)($oElementrPr->getAttribute('sz') / 100));
+//                    } else {
+//                        foreach ($this->oPhpPresentation->getAllMasterSlides() as $masterSlide) {
+//                            foreach ($masterSlide->getTextStyles()->getBodyStyle() as $bodyStyle) {
+//                                if ($bodyStyle->getFont()->getSize() > 0) {
+//                                    $oText->getFont()->setSize($bodyStyle->getFont()->getSize());
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if ($oElementrPr->hasAttribute('u')) {
+//                        $oText->getFont()->setUnderline($oElementrPr->getAttribute('u'));
+//                    }
+//                    // Color
+//                    $oElementColor = $xmlReader->getElement('a:solidFill', $oElementrPr);
+//                    if ($oElementColor instanceof DOMElement) {
+//                        $oColor = Color::identify($xmlReader, $oElementColor);
+//                        if ($oColor !== null) {
+//                            $oText->getFont()->setColor($oColor);
+//                        }
+//                    }
+
+//                // Hyperlink
+//                $oElementHlinkClick = $xmlReader->getElement('a:hlinkClick', $oElementrPr);
+//                if (is_object($oElementHlinkClick)) {
+//                    if ($oElementHlinkClick->hasAttribute('tooltip')) {
+//                        $oText->getHyperlink()->setTooltip($oElementHlinkClick->getAttribute('tooltip'));
+//                    }
+//                if ($oElementHlinkClick->hasAttribute('r:id') && isset($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target'])) {
+//                    $oText->getHyperlink()->setUrl($this->arrayRels[$this->fileRels][$oElementHlinkClick->getAttribute('r:id')]['Target']);
+//                }
+//                }
+//                    // Font
+//                    $oElementFontFormat = null;
+//                    $oElementFontFormatLatin = $xmlReader->getElement('a:latin', $oElementrPr);
+//                    if (is_object($oElementFontFormatLatin)) {
+//                        $oText->getFont()->setFormat(Font::FORMAT_LATIN);
+//                        $oElementFontFormat = $oElementFontFormatLatin;
+//                    }
+//                    $oElementFontFormatEastAsian = $xmlReader->getElement('a:ea', $oElementrPr);
+//                    if (is_object($oElementFontFormatEastAsian)) {
+//                        $oText->getFont()->setFormat(Font::FORMAT_EAST_ASIAN);
+//                        $oElementFontFormat = $oElementFontFormatEastAsian;
+//                    }
+//                    $oElementFontFormatComplexScript = $xmlReader->getElement('a:cs', $oElementrPr);
+//                    if (is_object($oElementFontFormatComplexScript)) {
+//                        $oText->getFont()->setFormat(Font::FORMAT_COMPLEX_SCRIPT);
+//                        $oElementFontFormat = $oElementFontFormatComplexScript;
+//                    }
+//                    if (is_object($oElementFontFormat) && $oElementFontFormat->hasAttribute('typeface')) {
+//                        $oText->getFont()->setName($oElementFontFormat->getAttribute('typeface'));
+//                    }
+
+            //} else {
+            // $oText = $oParagraph->createText();
+
+            $oSubSubElement = $xmlReader->getElement('a:t', $oSubElement);
+            if ($oSubSubElement instanceof DOMElement) {
+                $oText->setText($oSubSubElement->nodeValue);
+            }
+//            }
         }
 
         $oParagraph->setEndParaRPr(RichText\Para\EndParaRPr::load($xmlReader, $oElement));
@@ -1269,7 +1227,7 @@ class PowerPoint2007 implements ReaderInterface
 
         $oElementColor = $xmlReader->getElement('a:solidFill', $oElement);
         if ($oElementColor instanceof DOMElement) {
-            $oColor = SchemeColor::load($xmlReader, $oElementColor);
+            $oColor = Color::identify($xmlReader, $oElementColor);
             if ($oColor !== null) {
                 $oBorder->setColor($oColor);
             }

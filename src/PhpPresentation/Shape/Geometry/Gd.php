@@ -19,10 +19,15 @@ class Gd
             return null;
         }
 
+        return self::loadByElement($xmlReader, $dom);
+    }
+
+    public static function loadByElement(XMLReader $xmlReader, DOMElement $node): self
+    {
         $gd = new self();
 
-        $gd->name = $dom->getAttribute('name');
-        $gd->fmla = $dom->getAttribute('fmla');
+        $gd->name = $node->getAttribute('name');
+        $gd->fmla = $node->getAttribute('fmla');
 
         return $gd;
     }

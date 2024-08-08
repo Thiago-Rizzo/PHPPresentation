@@ -2,13 +2,16 @@
 
 namespace PhpOffice\PhpPresentation\Shape\RichText\Para;
 
+use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
-use DOMElement;
 
 class Sym
 {
     public string $typeface = '';
+    public string $panose = '';
+    public string $charset = '';
+    public string $pitchFamily = '';
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
@@ -17,18 +20,24 @@ class Sym
             return null;
         }
 
-        $latin = new self();
+        $sym = new self();
 
-        $latin->typeface = $dom->getAttribute('typeface');
+        $sym->typeface = $dom->getAttribute('typeface');
+        $sym->panose = $dom->getAttribute('panose');
+        $sym->charset = $dom->getAttribute('charset');
+        $sym->pitchFamily = $dom->getAttribute('pitchFamily');
 
-        return $latin;
+        return $sym;
     }
 
     public function write(XMLWriter $writer): void
     {
         $writer->startElement('a:sym');
 
-        $this->typeface != '' && $writer->writeAttribute('typeface', $this->typeface);
+        $this->typeface !== '' && $writer->writeAttribute('typeface', $this->typeface);
+        $this->panose !== '' && $writer->writeAttribute('panose', $this->panose);
+        $this->pitchFamily !== '' && $writer->writeAttribute('pitchFamily', $this->pitchFamily);
+        $this->charset !== '' && $writer->writeAttribute('charset', $this->charset);
 
         $writer->endElement();
     }

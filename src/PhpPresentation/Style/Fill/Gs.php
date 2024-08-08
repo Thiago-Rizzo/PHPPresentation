@@ -6,12 +6,11 @@ use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
 use PhpOffice\PhpPresentation\Style\Color;
-use PhpOffice\PhpPresentation\Style\SchemeColor;
 
 class Gs
 {
-    public ?Color $color = null;
     public string $pos = '';
+    public ?Color $color = null;
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
@@ -29,7 +28,7 @@ class Gs
 
         $gs->pos = $node->getAttribute('pos');
 
-        $gs->color = SchemeColor::load($xmlReader, $node);
+        $gs->color = Color::identify($xmlReader, $node);
 
         return $gs;
     }

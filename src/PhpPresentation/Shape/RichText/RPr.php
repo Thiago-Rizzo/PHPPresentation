@@ -1,19 +1,24 @@
 <?php
 
-namespace PhpOffice\PhpPresentation\Shape\RichText\Para;
+namespace PhpOffice\PhpPresentation\Shape\RichText;
 
+use DOMElement;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
+use PhpOffice\PhpPresentation\Shape\RichText\Para\Cs;
+use PhpOffice\PhpPresentation\Shape\RichText\Para\Ea;
+use PhpOffice\PhpPresentation\Shape\RichText\Para\Latin;
+use PhpOffice\PhpPresentation\Shape\RichText\Para\Sym;
 use PhpOffice\PhpPresentation\Style\Fill;
-use DOMElement;
 
-class EndParaRPr
+class RPr
 {
     public ?Fill $fill = null;
     public ?Latin $latin = null;
     public ?Ea $ea = null;
     public ?Cs $cs = null;
     public ?Sym $sym = null;
+    public ?HlinkClick $hlinkClick = null;
 
     public string $sz = '';
     public string $b = '';
@@ -27,35 +32,36 @@ class EndParaRPr
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
-        $dom = $xmlReader->getElement('a:endParaRPr', $node);
+        $dom = $xmlReader->getElement('a:rPr', $node);
         if (!$dom) {
             return null;
         }
 
-        $endParaRPr = new self();
+        $rPr = new self();
 
-        $endParaRPr->sz = $dom->getAttribute('sz');
-        $endParaRPr->b = $dom->getAttribute('b');
-        $endParaRPr->i = $dom->getAttribute('i');
-        $endParaRPr->u = $dom->getAttribute('u');
-        $endParaRPr->strike = $dom->getAttribute('strike');
-        $endParaRPr->cap = $dom->getAttribute('cap');
-        $endParaRPr->dirty = $dom->getAttribute('dirty');
-        $endParaRPr->lang = $dom->getAttribute('lang');
-        $endParaRPr->spc = $dom->getAttribute('spc');
+        $rPr->sz = $dom->getAttribute('sz');
+        $rPr->b = $dom->getAttribute('b');
+        $rPr->i = $dom->getAttribute('i');
+        $rPr->u = $dom->getAttribute('u');
+        $rPr->strike = $dom->getAttribute('strike');
+        $rPr->cap = $dom->getAttribute('cap');
+        $rPr->dirty = $dom->getAttribute('dirty');
+        $rPr->lang = $dom->getAttribute('lang');
+        $rPr->spc = $dom->getAttribute('spc');
 
-        $endParaRPr->fill = Fill::load($xmlReader, $dom);
-        $endParaRPr->latin = Latin::load($xmlReader, $dom);
-        $endParaRPr->ea = Ea::load($xmlReader, $dom);
-        $endParaRPr->cs = Cs::load($xmlReader, $dom);
-        $endParaRPr->sym = Sym::load($xmlReader, $dom);
+        $rPr->fill = Fill::load($xmlReader, $dom);
+        $rPr->latin = Latin::load($xmlReader, $dom);
+        $rPr->ea = Ea::load($xmlReader, $dom);
+        $rPr->cs = Cs::load($xmlReader, $dom);
+        $rPr->sym = Sym::load($xmlReader, $dom);
+        $rPr->hlinkClick = HlinkClick::load($xmlReader, $dom);
 
-        return $endParaRPr;
+        return $rPr;
     }
 
     public function write(XMLWriter $writer): void
     {
-        $writer->startElement('a:endParaRPr');
+        $writer->startElement('a:rPr');
 
         $this->lang !== '' && $writer->writeAttribute('lang', $this->lang);
         $this->sz !== '' && $writer->writeAttribute('sz', $this->sz);
@@ -72,6 +78,7 @@ class EndParaRPr
         $this->ea && $this->ea->write($writer);
         $this->cs && $this->cs->write($writer);
         $this->sym && $this->sym->write($writer);
+        $this->hlinkClick && $this->hlinkClick->write($writer);
 
         $writer->endElement();
     }

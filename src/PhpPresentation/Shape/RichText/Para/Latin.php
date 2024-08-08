@@ -9,6 +9,9 @@ use PhpOffice\Common\XMLWriter;
 class Latin
 {
     public string $typeface = '';
+    public string $panose = '';
+    public string $charset = '';
+    public string $pitchFamily = '';
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
@@ -20,6 +23,9 @@ class Latin
         $latin = new self();
 
         $latin->typeface = $dom->getAttribute('typeface');
+        $latin->panose = $dom->getAttribute('panose');
+        $latin->charset = $dom->getAttribute('charset');
+        $latin->pitchFamily = $dom->getAttribute('pitchFamily');
 
         return $latin;
     }
@@ -28,7 +34,10 @@ class Latin
     {
         $writer->startElement('a:latin');
 
-        $this->typeface != '' && $writer->writeAttribute('typeface', $this->typeface);
+        $this->typeface !== '' && $writer->writeAttribute('typeface', $this->typeface);
+        $this->panose !== '' && $writer->writeAttribute('panose', $this->panose);
+        $this->pitchFamily !== '' && $writer->writeAttribute('pitchFamily', $this->pitchFamily);
+        $this->charset !== '' && $writer->writeAttribute('charset', $this->charset);
 
         $writer->endElement();
     }

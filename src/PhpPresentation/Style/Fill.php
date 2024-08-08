@@ -270,7 +270,7 @@ class Fill implements ComparableInterface
 
         if ($fill->getFillType() == self::FILL_SOLID) {
 
-            $fill->setStartColor(SchemeColor::load($xmlReader, $element));
+            $fill->setStartColor(Color::identify($xmlReader, $element));
 
         } elseif ($fill->getFillType() == self::FILL_GRADIENT) {
 
@@ -280,12 +280,12 @@ class Fill implements ComparableInterface
 
             $elementPattern = $xmlReader->getElement('a:fgClr', $element);
             if ($elementPattern) {
-                $fill->setStartColor(SchemeColor::load($xmlReader, $elementPattern));
+                $fill->setStartColor(Color::identify($xmlReader, $elementPattern));
             }
 
             $elementPattern = $xmlReader->getElement('a:bgClr', $element);
             if ($elementPattern) {
-                $fill->setEndColor(SchemeColor::load($xmlReader, $elementPattern));
+                $fill->setEndColor(Color::identify($xmlReader, $elementPattern));
             }
         }
 

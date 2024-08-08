@@ -9,6 +9,9 @@ use DOMElement;
 class Ea
 {
     public string $typeface = '';
+    public string $panose = '';
+    public string $charset = '';
+    public string $pitchFamily = '';
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self
     {
@@ -17,18 +20,24 @@ class Ea
             return null;
         }
 
-        $latin = new self();
+        $ea = new self();
 
-        $latin->typeface = $dom->getAttribute('typeface');
+        $ea->typeface = $dom->getAttribute('typeface');
+        $ea->panose = $dom->getAttribute('panose');
+        $ea->charset = $dom->getAttribute('charset');
+        $ea->pitchFamily = $dom->getAttribute('pitchFamily');
 
-        return $latin;
+        return $ea;
     }
 
     public function write(XMLWriter $writer): void
     {
         $writer->startElement('a:ea');
 
-        $this->typeface != '' && $writer->writeAttribute('typeface', $this->typeface);
+        $this->typeface !== '' && $writer->writeAttribute('typeface', $this->typeface);
+        $this->panose !== '' && $writer->writeAttribute('panose', $this->panose);
+        $this->pitchFamily !== '' && $writer->writeAttribute('pitchFamily', $this->pitchFamily);
+        $this->charset !== '' && $writer->writeAttribute('charset', $this->charset);
 
         $writer->endElement();
     }

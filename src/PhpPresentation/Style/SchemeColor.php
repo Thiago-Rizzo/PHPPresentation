@@ -62,7 +62,7 @@ class SchemeColor extends Color
     {
         $element = $xmlReader->getElement('a:schemeClr', $node);
         if (!$element) {
-            return parent::load($xmlReader, $node);
+            return null;
         }
 
         $color = new self();

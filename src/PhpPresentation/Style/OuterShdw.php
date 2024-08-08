@@ -2,10 +2,10 @@
 
 namespace PhpOffice\PhpPresentation\Style;
 
+use DOMElement;
 use PhpOffice\Common\Drawing as CommonDrawing;
 use PhpOffice\Common\XMLReader;
 use PhpOffice\Common\XMLWriter;
-use DOMElement;
 
 class OuterShdw
 {
@@ -42,7 +42,7 @@ class OuterShdw
 
         $outerShdw->algn = $dom->getAttribute('algn');
 
-        $outerShdw->color = SchemeColor::load($xmlReader, $dom);
+        $outerShdw->color = Color::identify($xmlReader, $dom);
 
         return $outerShdw;
     }
