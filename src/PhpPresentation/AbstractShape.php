@@ -25,6 +25,7 @@ use PhpOffice\PhpPresentation\Shape\CxnSp\CNvPicPr;
 use PhpOffice\PhpPresentation\Shape\CxnSp\NvPr;
 use PhpOffice\PhpPresentation\Shape\CxnSp\SpPr;
 use PhpOffice\PhpPresentation\Shape\Hyperlink;
+use PhpOffice\PhpPresentation\Shape\RichText\BodyPr\BodyPr;
 use PhpOffice\PhpPresentation\Style\Border;
 use PhpOffice\PhpPresentation\Style\Fill;
 use PhpOffice\PhpPresentation\Style\Shadow;
@@ -116,6 +117,8 @@ abstract class AbstractShape implements ComparableInterface
     protected ?NvPr $nvPr = null;
 
     protected ?CNvPicPr $cNvPicPr = null;
+
+    public ?BodyPr $bodyPr = null;
 
     /**
      * Create a new self.

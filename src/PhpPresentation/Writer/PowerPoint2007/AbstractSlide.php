@@ -53,7 +53,6 @@ use PhpOffice\PhpPresentation\Style\Border;
 use PhpOffice\PhpPresentation\Style\Bullet;
 use PhpOffice\PhpPresentation\Style\Color;
 use PhpOffice\PhpPresentation\Style\Color\Ref;
-use PhpOffice\PhpPresentation\Style\Shadow;
 
 abstract class AbstractSlide extends AbstractDecoratorWriter
 {
@@ -202,51 +201,9 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
         $this->writeStyle($objWriter, $shape->getStyle());
         // p:txBody
         $objWriter->startElement('p:txBody');
-        // a:bodyPr
-        //@link :http://msdn.microsoft.com/en-us/library/documentformat.openxml.drawing.bodyproperties%28v=office.14%29.aspx
-        $objWriter->startElement('a:bodyPr');
-        if (!$shape->isPlaceholder()) {
-            $verticalAlign = $shape->getActiveParagraph()->getAlignment()->getVertical();
-            if (Alignment::VERTICAL_BASE != $verticalAlign && Alignment::VERTICAL_AUTO != $verticalAlign) {
-                $objWriter->writeAttribute('anchor', $verticalAlign);
-            }
-            if (RichText::WRAP_SQUARE != $shape->getWrap()) {
-                $objWriter->writeAttribute('wrap', $shape->getWrap());
-            }
-            if (RichText::OVERFLOW_OVERFLOW != $shape->getHorizontalOverflow()) {
-                $objWriter->writeAttribute('horzOverflow', $shape->getHorizontalOverflow());
-            }
-            if (RichText::OVERFLOW_OVERFLOW != $shape->getVerticalOverflow()) {
-                $objWriter->writeAttribute('vertOverflow', $shape->getVerticalOverflow());
-            }
-            if ($shape->isUpright()) {
-                $objWriter->writeAttribute('upright', '1');
-            }
-            if ($shape->isVertical()) {
-                $objWriter->writeAttribute('vert', 'vert');
-            }
-            $objWriter->writeAttribute('lIns', CommonDrawing::pixelsToEmu($shape->getInsetLeft()));
-            $objWriter->writeAttribute('tIns', CommonDrawing::pixelsToEmu($shape->getInsetTop()));
-            $objWriter->writeAttribute('rIns', CommonDrawing::pixelsToEmu($shape->getInsetRight()));
-            $objWriter->writeAttribute('bIns', CommonDrawing::pixelsToEmu($shape->getInsetBottom()));
-            $objWriter->writeAttribute('rtlCol', '0');
-            if (1 != $shape->getColumns()) {
-                $objWriter->writeAttribute('numCol', $shape->getColumns());
-                $objWriter->writeAttribute('spcCol', CommonDrawing::pixelsToEmu($shape->getColumnSpacing()));
-            }
-            // a:spAutoFit
-            $objWriter->startElement('a:' . $shape->getAutoFit());
-            if (RichText::AUTOFIT_NORMAL == $shape->getAutoFit()) {
-                if (!is_null($shape->getFontScale())) {
-                    $objWriter->writeAttribute('fontScale', $shape->getFontScale() * 1000);
-                }
-                if (!is_null($shape->getLineSpaceReduction())) {
-                    $objWriter->writeAttribute('lnSpcReduction', $shape->getLineSpaceReduction() * 1000);
-                }
-            }
-            $objWriter->endElement();
-        }
-        $objWriter->endElement();
+
+        $shape->bodyPr && $shape->bodyPr->write($objWriter);
+
         // a:lstStyle
         $objWriter->writeElement('a:lstStyle', null);
         if ($shape->isPlaceholder() &&
@@ -388,14 +345,9 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
                 }
                 // a:txBody
                 $objWriter->startElement('a:txBody');
-                // a:txBody/a:bodyPr
-                $objWriter->startElement('a:bodyPr');
-                $objWriter->writeAttribute('wrap', 'square');
-                $objWriter->writeAttribute('rtlCol', '0');
-                // a:txBody/a:bodyPr/a:spAutoFit
-                $objWriter->writeElement('a:spAutoFit', null);
-                // a:txBody/a:bodyPr/
-                $objWriter->endElement();
+
+                $shape->bodyPr && $shape->bodyPr->write($objWriter);
+
                 // a:lstStyle
                 $objWriter->writeElement('a:lstStyle', null);
                 // Write paragraphs
@@ -1065,13 +1017,8 @@ abstract class AbstractSlide extends AbstractDecoratorWriter
 
         // p:sp\p:txBody
         $objWriter->startElement('p:txBody');
-        // p:sp\p:txBody\a:bodyPr
-        $objWriter->startElement('a:bodyPr');
-        $objWriter->writeAttribute('vertOverflow', 'clip');
-        $objWriter->writeAttribute('rtlCol', '0');
-        $objWriter->writeAttribute('anchor', 'ctr');
-        // p:sp\p:txBody\a:bodyPr\
-        $objWriter->endElement();
+
+        $shape->bodyPr && $shape->bodyPr->write($objWriter);
 
         // p:sp\p:txBody\a:lstStyle
         $objWriter->writeElement('a:lstStyle');

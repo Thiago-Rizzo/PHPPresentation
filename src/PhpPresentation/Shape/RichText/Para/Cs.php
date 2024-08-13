@@ -8,7 +8,6 @@ use DOMElement;
 
 class Cs
 {
-
     public string $typeface = '';
 
     public static function load(XMLReader $xmlReader, DOMElement $node): ?self

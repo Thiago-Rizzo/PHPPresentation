@@ -873,10 +873,15 @@ class PowerPoint2007 implements ReaderInterface
 
         $oShape->setSpPr(SpPr::load($xmlReader, $node));
 
-        $arrayElements = $xmlReader->getElements('p:txBody/a:p', $node);
-        foreach ($arrayElements as $oElement) {
-            if ($oElement instanceof DOMElement) {
-                $this->loadParagraph($xmlReader, $oElement, $oShape);
+        $oElement = $xmlReader->getElement('p:txBody', $node);
+        if ($oElement instanceof DOMElement) {
+            $oShape->bodyPr = RichText\BodyPr\BodyPr::load($xmlReader, $oElement);
+
+            $arrayElements = $xmlReader->getElements('a:p', $oElement);
+            foreach ($arrayElements as $subElement) {
+                if ($subElement instanceof DOMElement) {
+                    $this->loadParagraph($xmlReader, $subElement, $oShape);
+                }
             }
         }
 
@@ -962,9 +967,15 @@ class PowerPoint2007 implements ReaderInterface
                     $oCell->setRowSpan((int)$oElementCell->getAttribute('rowSpan'));
                 }
 
-                foreach ($xmlReader->getElements('a:txBody/a:p', $oElementCell) as $oElementPara) {
-                    if ($oElementPara instanceof DOMElement) {
-                        $this->loadParagraph($xmlReader, $oElementPara, $oCell);
+                $txBodyElement = $xmlReader->getElement('p:txBody', $node);
+                if ($txBodyElement instanceof DOMElement) {
+                    $oCell->bodyPr = RichText\BodyPr\BodyPr::load($xmlReader, $txBodyElement);
+
+                    $arrayElements = $xmlReader->getElements('a:p', $txBodyElement);
+                    foreach ($arrayElements as $subElement) {
+                        if ($subElement instanceof DOMElement) {
+                            $this->loadParagraph($xmlReader, $subElement, $oCell);
+                        }
                     }
                 }
 

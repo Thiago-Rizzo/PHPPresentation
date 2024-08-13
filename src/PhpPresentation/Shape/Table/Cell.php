@@ -22,6 +22,7 @@ namespace PhpOffice\PhpPresentation\Shape\Table;
 
 use PhpOffice\PhpPresentation\ComparableInterface;
 use PhpOffice\PhpPresentation\Exception\OutOfBoundsException;
+use PhpOffice\PhpPresentation\Shape\RichText\BodyPr\BodyPr;
 use PhpOffice\PhpPresentation\Shape\RichText\Paragraph;
 use PhpOffice\PhpPresentation\Shape\RichText\TextElementInterface;
 use PhpOffice\PhpPresentation\Style\Borders;
@@ -87,6 +88,8 @@ class Cell implements ComparableInterface
      * @var int
      */
     private $hashIndex;
+
+    public ?BodyPr $bodyPr = null;
 
     /**
      * Create a new \PhpOffice\PhpPresentation\Shape\RichText instance.
