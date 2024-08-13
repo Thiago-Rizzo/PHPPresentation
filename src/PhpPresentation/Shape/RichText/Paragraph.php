@@ -63,7 +63,7 @@ class Paragraph implements ComparableInterface
     private $bulletStyle;
 
     /**
-     * @var int
+     * @var float
      */
     private $lineSpacing = 100;
 
@@ -73,12 +73,12 @@ class Paragraph implements ComparableInterface
     private $lineSpacingMode = self::LINE_SPACING_MODE_PERCENT;
 
     /**
-     * @var int
+     * @var float
      */
     private $spacingBefore = 0;
 
     /**
-     * @var int
+     * @var float
      */
     private $spacingAfter = 0;
 
@@ -304,9 +304,9 @@ class Paragraph implements ComparableInterface
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getLineSpacing(): int
+    public function getLineSpacing(): float
     {
         return $this->lineSpacing;
     }
@@ -314,11 +314,11 @@ class Paragraph implements ComparableInterface
     /**
      * Value in points
      *
-     * @param int $lineSpacing
+     * @param float $lineSpacing
      *
      * @return self
      */
-    public function setLineSpacing($lineSpacing): self
+    public function setLineSpacing(float $lineSpacing): self
     {
         $this->lineSpacing = $lineSpacing;
 
@@ -353,9 +353,9 @@ class Paragraph implements ComparableInterface
     /**
      * Value in points
      *
-     * @return int
+     * @return float
      */
-    public function getSpacingBefore(): int
+    public function getSpacingBefore(): float
     {
         return $this->spacingBefore;
     }
@@ -363,11 +363,11 @@ class Paragraph implements ComparableInterface
     /**
      * Value in points
      *
-     * @param int $spacingBefore
+     * @param float $spacingBefore
      *
      * @return self
      */
-    public function setSpacingBefore(int $spacingBefore): self
+    public function setSpacingBefore(float $spacingBefore): self
     {
         $this->spacingBefore = $spacingBefore;
 
@@ -377,9 +377,9 @@ class Paragraph implements ComparableInterface
     /**
      * Value in points
      *
-     * @return int
+     * @return float
      */
-    public function getSpacingAfter(): int
+    public function getSpacingAfter(): float
     {
         return $this->spacingAfter;
     }
@@ -387,11 +387,11 @@ class Paragraph implements ComparableInterface
     /**
      * Value in points
      *
-     * @param int $spacingAfter
+     * @param float $spacingAfter
      *
      * @return self
      */
-    public function setSpacingAfter(int $spacingAfter): self
+    public function setSpacingAfter(float $spacingAfter): self
     {
         $this->spacingAfter = $spacingAfter;
 
